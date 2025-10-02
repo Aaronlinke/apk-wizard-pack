@@ -1,0 +1,4 @@
+project_id = "zhaaldbshbgnsdnsdnxa"
+
+[functions.build-app]
+verify_jwt = false
