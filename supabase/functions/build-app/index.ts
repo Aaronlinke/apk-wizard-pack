@@ -26,8 +26,8 @@ serve(async (req) => {
       throw new Error('LOVABLE_API_KEY nicht konfiguriert');
     }
 
-    // AI prompt to analyze code and generate app structure
-    const systemPrompt = `Du bist ein Code-Analyse-Experte. Analysiere den bereitgestellten Code und erstelle eine vollständige App-Struktur.
+    // AI prompt to analyze code and generate mobile-ready app structure
+    const systemPrompt = `Du bist ein Experte für Mobile-App-Entwicklung mit Capacitor. Analysiere den Code und erstelle eine vollständige, mobile-fähige App-Struktur.
 
 Antworte AUSSCHLIESSLICH mit einem JSON-Objekt in diesem exakten Format:
 {
@@ -35,23 +35,54 @@ Antworte AUSSCHLIESSLICH mit einem JSON-Objekt in diesem exakten Format:
   "description": "string",
   "files": [
     {
-      "name": "string (z.B. index.html, main.js, style.css)",
+      "name": "string (z.B. src/App.tsx, public/manifest.json, capacitor.config.ts)",
       "content": "string (vollständiger Dateiinhalt)",
-      "type": "string (html, javascript, css, json, etc.)"
+      "type": "string (typescript, json, html, css, etc.)"
     }
   ],
-  "buildInstructions": "string (kurze Anleitung zum Ausführen)",
-  "packageJson": null oder { "name": "...", "dependencies": {...} }
+  "buildInstructions": "string (Schritt-für-Schritt APK-Build-Anleitung)",
+  "packageJson": {
+    "name": "string",
+    "version": "0.1.0",
+    "dependencies": {
+      "react": "^18.2.0",
+      "react-dom": "^18.2.0",
+      "@capacitor/core": "^6.0.0",
+      "@capacitor/android": "^6.0.0",
+      "@capacitor/ios": "^6.0.0"
+    },
+    "devDependencies": {
+      "@capacitor/cli": "^6.0.0",
+      "vite": "^5.0.0"
+    },
+    "scripts": {
+      "dev": "vite",
+      "build": "vite build",
+      "cap:sync": "cap sync",
+      "cap:android": "cap open android",
+      "cap:build": "npm run build && cap sync"
+    }
+  }
 }
 
-Regeln:
-- Erstelle IMMER eine lauffähige, vollständige App
-- Für HTML: Erstelle index.html mit vollständigem HTML5-Markup
-- Für JavaScript: Erstelle alle nötigen Dateien (main.js, package.json wenn Node.js)
-- Für Python: Erstelle main.py und requirements.txt
-- Integriere den User-Code sinnvoll
-- Füge fehlende Dependencies/Imports hinzu
-- Erstelle einen funktionalen Starter`;
+PFLICHT-DATEIEN die du erstellen MUSST:
+1. capacitor.config.ts - Mit App-ID (com.example.appname), Name, webDir: "dist"
+2. public/manifest.json - PWA Manifest mit Icons, Theme-Farben
+3. index.html - Muss <link rel="manifest"> enthalten
+4. vite.config.ts - Vite Konfiguration
+5. src/App.tsx oder src/main.js - Haupt-App-Code
+6. src/index.css - Basis-Styling
+
+BUILD-ANLEITUNG muss enthalten:
+1. npm install
+2. npm run build
+3. npx cap add android (beim ersten Mal)
+4. npx cap sync
+5. npx cap open android
+6. In Android Studio: Build → Build Bundle(s)/APK(s) → Build APK(s)
+7. APK befindet sich in android/app/build/outputs/apk/debug/
+
+Erstelle eine moderne React-App die sowohl als PWA als auch als native Mobile-App funktioniert!`;
 
     const userPrompt = `Sprache: ${language}
     
@@ -60,7 +91,8 @@ Code:
 ${code}
 \`\`\`
 
-Erstelle eine vollständige, lauffähige App basierend auf diesem Code.`;
+Erstelle eine vollständige MOBILE-FÄHIGE Capacitor-App basierend auf diesem Code.
+Die App muss als APK kompilierbar sein und auch als PWA funktionieren.`;
 
     console.log('Calling AI to analyze code...');
     
