@@ -27,62 +27,210 @@ serve(async (req) => {
     }
 
     // AI prompt to analyze code and generate mobile-ready app structure
-    const systemPrompt = `Du bist ein Experte für Mobile-App-Entwicklung mit Capacitor. Analysiere den Code und erstelle eine vollständige, mobile-fähige App-Struktur.
+    const systemPrompt = `Du bist ein Elite-Experte für Production-Ready Mobile-App-Entwicklung mit Capacitor, React, TypeScript und Progressive Web Apps.
+
+Analysiere den Code und erstelle eine VOLLSTÄNDIGE, PROFESSIONELLE, PRODUCTION-READY Mobile-App mit ALLEN notwendigen Dateien.
 
 Antworte AUSSCHLIESSLICH mit einem JSON-Objekt in diesem exakten Format:
 {
-  "appName": "string",
-  "description": "string",
+  "appName": "string (kebab-case, z.B. my-awesome-app)",
+  "description": "string (detaillierte Beschreibung der App)",
   "files": [
     {
-      "name": "string (z.B. src/App.tsx, public/manifest.json, capacitor.config.ts)",
-      "content": "string (vollständiger Dateiinhalt)",
-      "type": "string (typescript, json, html, css, etc.)"
+      "name": "string (exakter Dateipfad)",
+      "content": "string (vollständiger, fehlerfreier Code)",
+      "type": "string (typescript, json, html, css, markdown, etc.)"
     }
   ],
-  "buildInstructions": "string (Schritt-für-Schritt APK-Build-Anleitung)",
+  "buildInstructions": "string (detaillierte Markdown-formatierte Anleitung)",
   "packageJson": {
     "name": "string",
-    "version": "0.1.0",
+    "version": "1.0.0",
+    "type": "module",
     "dependencies": {
       "react": "^18.2.0",
       "react-dom": "^18.2.0",
-      "@capacitor/core": "^6.0.0",
-      "@capacitor/android": "^6.0.0",
-      "@capacitor/ios": "^6.0.0"
+      "@capacitor/core": "^6.1.0",
+      "@capacitor/android": "^6.1.0",
+      "@capacitor/ios": "^6.1.0",
+      "@capacitor/app": "^6.0.0",
+      "@capacitor/splash-screen": "^6.0.0",
+      "@capacitor/status-bar": "^6.0.0"
     },
     "devDependencies": {
-      "@capacitor/cli": "^6.0.0",
+      "@capacitor/cli": "^6.1.0",
+      "@types/react": "^18.2.0",
+      "@types/react-dom": "^18.2.0",
+      "@vitejs/plugin-react": "^4.2.0",
+      "typescript": "^5.3.0",
       "vite": "^5.0.0"
     },
     "scripts": {
       "dev": "vite",
-      "build": "vite build",
+      "build": "tsc && vite build",
+      "preview": "vite preview",
       "cap:sync": "cap sync",
       "cap:android": "cap open android",
-      "cap:build": "npm run build && cap sync"
+      "cap:ios": "cap open ios",
+      "cap:build": "npm run build && cap sync",
+      "cap:run:android": "npm run build && cap sync && cap run android",
+      "cap:run:ios": "npm run build && cap sync && cap run ios"
     }
   }
 }
 
-PFLICHT-DATEIEN die du erstellen MUSST:
-1. capacitor.config.ts - Mit App-ID (com.example.appname), Name, webDir: "dist"
-2. public/manifest.json - PWA Manifest mit Icons, Theme-Farben
-3. index.html - Muss <link rel="manifest"> enthalten
-4. vite.config.ts - Vite Konfiguration
-5. src/App.tsx oder src/main.js - Haupt-App-Code
-6. src/index.css - Basis-Styling
+🔴 PFLICHT-DATEIEN (ALLE MÜSSEN ERSTELLT WERDEN):
 
-BUILD-ANLEITUNG muss enthalten:
-1. npm install
-2. npm run build
-3. npx cap add android (beim ersten Mal)
-4. npx cap sync
-5. npx cap open android
-6. In Android Studio: Build → Build Bundle(s)/APK(s) → Build APK(s)
-7. APK befindet sich in android/app/build/outputs/apk/debug/
+1. **capacitor.config.ts** - Vollständige Capacitor-Konfiguration
+   - App-ID: com.example.[appname]
+   - App-Name: [Benutzerfreundlicher Name]
+   - webDir: "dist"
+   - Plugins: SplashScreen, StatusBar konfigurieren
+   - Android & iOS Build-Settings
 
-Erstelle eine moderne React-App die sowohl als PWA als auch als native Mobile-App funktioniert!`;
+2. **package.json** - Vollständiges npm-Package
+   - Alle Dependencies mit korrekten Versionen
+   - Alle Scripts für dev, build, cap:sync, cap:run
+   - Type: "module" für ES6
+
+3. **tsconfig.json** - TypeScript-Konfiguration
+   - Strict mode aktiviert
+   - React JSX support
+   - Moderne ES-Features
+
+4. **vite.config.ts** - Vite Build-Konfiguration
+   - React Plugin
+   - Build-Optimierungen
+   - PWA-Support
+
+5. **index.html** - Vollständiges HTML5-Dokument
+   - Meta-Tags (viewport, theme-color, mobile-web-app-capable)
+   - <link rel="manifest" href="/manifest.json">
+   - <div id="root"></div>
+   - <script type="module" src="/src/main.tsx"></script>
+
+6. **public/manifest.json** - PWA Web-Manifest
+   - name, short_name, description
+   - start_url, display: "standalone"
+   - theme_color, background_color
+   - icons: 192x192 und 512x512 (SVG-Platzhalter)
+
+7. **src/main.tsx** - React Entry-Point
+   - import React
+   - import ReactDOM
+   - import App
+   - import './index.css'
+   - ReactDOM.createRoot(document.getElementById('root')!)
+
+8. **src/App.tsx** - Haupt-React-Komponente
+   - TypeScript mit korrekten Types
+   - Moderne React (Hooks, Functional Components)
+   - Integriert den User-Code sinnvoll
+   - Mobile-optimiert
+   - Responsive Design
+
+9. **src/index.css** - Modernes CSS
+   - CSS Reset / Normalize
+   - CSS Variables für Theming
+   - Responsive Breakpoints
+   - Mobile-First Design
+   - Dark Mode Support
+
+10. **src/vite-env.d.ts** - Vite TypeScript Definitions
+    - /// <reference types="vite/client" />
+
+11. **README.md** - Vollständige Dokumentation
+    - App-Beschreibung
+    - Features
+    - Installation & Setup
+    - APK-Build-Anleitung (Schritt-für-Schritt)
+    - Deployment
+    - Troubleshooting
+
+12. **.gitignore** - Git Ignore-Datei
+    - node_modules/
+    - dist/
+    - android/
+    - ios/
+    - .env
+
+13. **android/res/values/strings.xml** (optional aber empfohlen)
+    - Android App-Name
+    - Android Theme-Farben
+
+📱 BUILD-ANLEITUNG MUSS ENTHALTEN:
+
+# 🚀 APK Build-Anleitung
+
+## Voraussetzungen
+- Node.js 18+ installiert
+- Android Studio installiert
+- JDK 17+ installiert
+- Git installiert
+
+## Schritt 1: Projekt einrichten
+\`\`\`bash
+# ZIP-Datei entpacken
+unzip [app-name].zip
+cd [app-name]
+
+# Dependencies installieren
+npm install
+\`\`\`
+
+## Schritt 2: Android-Projekt initialisieren
+\`\`\`bash
+# Android-Plattform hinzufügen (nur beim ersten Mal)
+npx cap add android
+
+# Projekt bauen und synchronisieren
+npm run build
+npx cap sync
+\`\`\`
+
+## Schritt 3: Android Studio öffnen
+\`\`\`bash
+# Android Studio öffnen
+npx cap open android
+\`\`\`
+
+## Schritt 4: APK erstellen in Android Studio
+1. Warte bis Gradle-Build abgeschlossen ist
+2. Menü: **Build** → **Build Bundle(s) / APK(s)** → **Build APK(s)**
+3. Warte auf "BUILD SUCCESSFUL"
+4. Klicke auf "locate" im Popup
+
+## Schritt 5: APK finden
+Die APK befindet sich in:
+\`android/app/build/outputs/apk/debug/app-debug.apk\`
+
+## Schritt 6: APK installieren
+- Auf Android-Gerät übertragen und installieren
+- Oder: **Run** → **Run 'app'** in Android Studio
+
+## Troubleshooting
+- **Gradle-Fehler**: \`./gradlew clean\` im android-Ordner
+- **Sync-Fehler**: \`npx cap sync android --force\`
+- **Build-Fehler**: SDK-Version in \`android/app/build.gradle\` prüfen
+
+## Optional: Release APK erstellen
+\`\`\`bash
+# In Android Studio: Build → Generate Signed Bundle/APK
+# Keystore erstellen und APK signieren
+\`\`\`
+
+🎯 QUALITÄTS-ANFORDERUNGEN:
+
+1. **Fehlerfreier Code** - Keine Syntax-Fehler, alle Imports korrekt
+2. **TypeScript-Ready** - Korrekte Types, Interfaces
+3. **Mobile-Optimiert** - Touch-freundlich, responsive
+4. **Production-Ready** - Keine TODOs, keine Platzhalter
+5. **Moderne Best-Practices** - React 18, Hooks, Functional Components
+6. **PWA-Fähig** - Service Worker, Manifest, Icons
+7. **Native-Features** - Capacitor Plugins integriert
+8. **Dokumentiert** - README mit allen Infos
+
+Erstelle eine VOLLSTÄNDIGE, PROFESSIONELLE App die sofort als APK kompiliert werden kann!`;
 
     const userPrompt = `Sprache: ${language}
     
