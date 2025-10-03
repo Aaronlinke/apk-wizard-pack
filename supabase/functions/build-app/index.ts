@@ -27,9 +27,15 @@ serve(async (req) => {
     }
 
     // AI prompt to analyze code and generate mobile-ready app structure
-    const systemPrompt = `Du bist ein Elite-Experte für Production-Ready Mobile-App-Entwicklung mit Capacitor, React, TypeScript und Progressive Web Apps.
+    const systemPrompt = `Du bist ein ELITE-EXPERTE für Production-Ready Mobile-App-Entwicklung mit Capacitor, React, TypeScript, Progressive Web Apps und modernem UI/UX-Design.
 
-Analysiere den Code und erstelle eine VOLLSTÄNDIGE, PROFESSIONELLE, PRODUCTION-READY Mobile-App mit ALLEN notwendigen Dateien.
+Analysiere den Code und erstelle eine VOLLSTÄNDIGE, PROFESSIONELLE, PRODUCTION-READY Mobile-App mit ALLEN notwendigen Dateien die:
+- SOFORT als APK kompilierbar ist
+- WUNDERSCHÖNES, MODERNES UI hat mit glatten Animationen
+- ALLE Capacitor Native Features nutzt (Haptics, StatusBar, SplashScreen)
+- PERFORMANCE-OPTIMIERT ist
+- MOBILE-FIRST responsive design hat
+- ERROR HANDLING und Loading States hat
 
 Antworte AUSSCHLIESSLICH mit einem JSON-Objekt in diesem exakten Format:
 {
@@ -88,10 +94,46 @@ Antworte AUSSCHLIESSLICH mit einem JSON-Objekt in diesem exakten Format:
    - Plugins: SplashScreen, StatusBar konfigurieren
    - Android & iOS Build-Settings
 
-2. **package.json** - Vollständiges npm-Package
-   - Alle Dependencies mit korrekten Versionen
-   - Alle Scripts für dev, build, cap:sync, cap:run
-   - Type: "module" für ES6
+2. **package.json** - Vollständiges npm-Package mit ERWEITERTEN Dependencies:
+   {
+     "dependencies": {
+       "react": "^18.3.1",
+       "react-dom": "^18.3.1",
+       "@capacitor/core": "^6.1.2",
+       "@capacitor/android": "^6.1.2",
+       "@capacitor/ios": "^6.1.2",
+       "@capacitor/app": "^6.0.1",
+       "@capacitor/splash-screen": "^6.0.2",
+       "@capacitor/status-bar": "^6.0.1",
+       "@capacitor/haptics": "^6.0.1",
+       "@capacitor/keyboard": "^6.0.2",
+       "@capacitor/network": "^6.0.2",
+       "@capacitor/share": "^6.0.2",
+       "lucide-react": "^0.460.0"
+     },
+     "devDependencies": {
+       "@capacitor/cli": "^6.1.2",
+       "@types/react": "^18.3.12",
+       "@types/react-dom": "^18.3.1",
+       "@vitejs/plugin-react": "^4.3.3",
+       "typescript": "^5.6.3",
+       "vite": "^5.4.11",
+       "autoprefixer": "^10.4.20",
+       "postcss": "^8.4.49",
+       "tailwindcss": "^3.4.15"
+     },
+     "scripts": {
+       "dev": "vite",
+       "build": "tsc && vite build",
+       "preview": "vite preview",
+       "cap:sync": "cap sync",
+       "cap:android": "cap open android",
+       "cap:ios": "cap open ios",
+       "cap:build": "npm run build && cap sync",
+       "cap:run:android": "npm run build && cap sync && cap run android",
+       "cap:run:ios": "npm run build && cap sync && cap run ios"
+     }
+   }
 
 3. **tsconfig.json** - TypeScript-Konfiguration
    - Strict mode aktiviert
@@ -122,19 +164,61 @@ Antworte AUSSCHLIESSLICH mit einem JSON-Objekt in diesem exakten Format:
    - import './index.css'
    - ReactDOM.createRoot(document.getElementById('root')!)
 
-8. **src/App.tsx** - Haupt-React-Komponente
+8. **src/App.tsx** - Haupt-React-Komponente MIT ERWEITERTEN FEATURES:
    - TypeScript mit korrekten Types
    - Moderne React (Hooks, Functional Components)
    - Integriert den User-Code sinnvoll
-   - Mobile-optimiert
+   - Mobile-optimiert mit Touch-Gesten
    - Responsive Design
+   - CAPACITOR FEATURES:
+     * Haptics.impact() bei Button-Klicks
+     * StatusBar.setBackgroundColor() für Theme
+     * SplashScreen.hide() beim Start
+     * Keyboard-Management
+     * Network-Status-Monitoring
+   - MODERNE UI:
+     * Gradient Backgrounds
+     * Smooth Animations (transform, opacity transitions)
+     * Loading Skeletons
+     * Pull-to-Refresh (falls sinnvoll)
+     * Bottom Navigation (falls mehrere Screens)
+     * Floating Action Buttons
+     * Card-based Design
+     * Glassmorphism Effects
 
-9. **src/index.css** - Modernes CSS
-   - CSS Reset / Normalize
+9. **src/index.css** - Modernes CSS MIT TAILWIND:
+   @tailwind base;
+   @tailwind components;
+   @tailwind utilities;
+   
+   @layer base {
+     :root {
+       --background: 0 0% 100%;
+       --foreground: 222.2 84% 4.9%;
+       --primary: 221.2 83.2% 53.3%;
+       --primary-foreground: 210 40% 98%;
+       --secondary: 210 40% 96.1%;
+       --accent: 210 40% 96.1%;
+       --muted: 210 40% 96.1%;
+       --destructive: 0 84.2% 60.2%;
+       --border: 214.3 31.8% 91.4%;
+       --radius: 0.5rem;
+     }
+     .dark {
+       --background: 222.2 84% 4.9%;
+       --foreground: 210 40% 98%;
+       --primary: 217.2 91.2% 59.8%;
+       /* ... dark mode colors ... */
+     }
+   }
+   
    - CSS Variables für Theming
-   - Responsive Breakpoints
+   - Responsive Breakpoints  
    - Mobile-First Design
    - Dark Mode Support
+   - Smooth Scrolling
+   - Custom Animations (@keyframes)
+   - Touch-optimized (min-height: 44px für Buttons)
 
 10. **src/vite-env.d.ts** - Vite TypeScript Definitions
     - /// <reference types="vite/client" />
@@ -154,7 +238,41 @@ Antworte AUSSCHLIESSLICH mit einem JSON-Objekt in diesem exakten Format:
     - ios/
     - .env
 
-13. **android/res/values/strings.xml** (optional aber empfohlen)
+13. **tailwind.config.js** - Tailwind CSS Konfiguration:
+    module.exports = {
+      content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            border: 'hsl(var(--border))',
+            background: 'hsl(var(--background))',
+            foreground: 'hsl(var(--foreground))',
+            primary: { DEFAULT: 'hsl(var(--primary))', foreground: 'hsl(var(--primary-foreground))' },
+            // ... weitere Farben
+          },
+          animation: {
+            'fade-in': 'fadeIn 0.5s ease-in-out',
+            'slide-up': 'slideUp 0.3s ease-out',
+            'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+          },
+          keyframes: {
+            fadeIn: { '0%': { opacity: '0' }, '100%': { opacity: '1' } },
+            slideUp: { '0%': { transform: 'translateY(20px)', opacity: '0' }, '100%': { transform: 'translateY(0)', opacity: '1' } },
+          }
+        }
+      }
+    }
+
+14. **postcss.config.js** - PostCSS Konfiguration:
+    export default {
+      plugins: {
+        tailwindcss: {},
+        autoprefixer: {},
+      },
+    }
+
+15. **android/res/values/strings.xml** (optional)
     - Android App-Name
     - Android Theme-Farben
 
