@@ -7,6 +7,9 @@ import { Code2, Loader2, Rocket, Upload, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 import { FileUpload } from "./FileUpload";
 import { TemplateSelector } from "./TemplateSelector";
+import { CodePreview } from "./CodePreview";
+import { CodeValidator } from "./CodeValidator";
+import { saveProjectToHistory } from "./ProjectHistory";
 
 interface CodeEditorProps {
   onBuild: (result: BuildResult) => void;
@@ -79,6 +82,10 @@ export const CodeEditor = ({ onBuild }: CodeEditorProps) => {
       
       toast.dismiss();
       toast.success("App erfolgreich generiert!");
+      
+      // Save to history
+      saveProjectToHistory(data as BuildResult, language);
+      
       onBuild(data as BuildResult);
     } catch (error: any) {
       console.error("Build error:", error);
@@ -198,6 +205,13 @@ export const CodeEditor = ({ onBuild }: CodeEditorProps) => {
               <FileUpload onFileLoad={handleFileLoad} />
             </TabsContent>
           </Tabs>
+
+          {code.trim() && (
+            <div className="mt-6 space-y-4">
+              <CodeValidator code={code} language={language} />
+              <CodePreview code={code} language={language} />
+            </div>
+          )}
 
           <Button
             onClick={handleBuild}

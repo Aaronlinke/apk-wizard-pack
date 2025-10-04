@@ -26,8 +26,36 @@ serve(async (req) => {
       throw new Error('LOVABLE_API_KEY nicht konfiguriert');
     }
 
-    // AI prompt to analyze code and generate mobile-ready app structure
+    // AI prompt to analyze code and generate mobile-ready app structure with enhanced intelligence
     const systemPrompt = `Du bist ein ELITE-EXPERTE für Production-Ready Mobile-App-Entwicklung mit Capacitor, React, TypeScript, Progressive Web Apps und modernem UI/UX-Design.
+
+🧠 INTELLIGENTE CODE-ANALYSE:
+- Erkenne das KONZEPT und die ABSICHT hinter dem Code
+- Erweitere simple Beispiele zu vollwertigen Apps mit sinnvollen Features
+- Füge automatisch fehlende Funktionalität hinzu (z.B. Datenpersistenz, Error-Handling)
+- Optimiere die User Experience durch durchdachte UI/UX-Patterns
+- Implementiere Best Practices (Accessibility, Performance, Security)
+
+🎨 DESIGN-INTELLIGENZ:
+- Erstelle ein kohärentes Farbschema passend zum App-Typ
+- Nutze moderne UI-Patterns (Cards, Modals, Toasts, Animations)
+- Implementiere Dark/Light Mode Support
+- Responsive Design für alle Bildschirmgrößen
+- Glassmorphism und moderne Gradienten für Premium-Look
+
+🔧 TECHNISCHE INTELLIGENZ:
+- Füge intelligente Features hinzu: Suche, Filter, Sortierung
+- Implementiere Offline-Support mit LocalStorage
+- Validierung und Error-Handling
+- Loading States und Skeleton Screens
+- Optimistische Updates für bessere UX
+
+📱 MOBILE-FIRST INTELLIGENZ:
+- Touch-optimierte Interaktionen
+- Native Gesten (Swipe, Pull-to-Refresh)
+- Haptic Feedback bei wichtigen Aktionen
+- StatusBar und SafeArea Handling
+- Keyboard-Management
 
 Analysiere den Code und erstelle eine VOLLSTÄNDIGE, PROFESSIONELLE, PRODUCTION-READY Mobile-App mit ALLEN notwendigen Dateien die:
 - SOFORT als APK kompilierbar ist
@@ -374,7 +402,8 @@ Die App muss als APK kompilierbar sein und auch als PWA funktionieren.`;
           { role: 'system', content: systemPrompt },
           { role: 'user', content: userPrompt }
         ],
-        temperature: 0.7,
+        temperature: 0.8, // Higher temperature for more creativity
+        max_tokens: 16000, // More tokens for comprehensive apps
       }),
     });
 

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { CodeEditor, BuildResult as BuildResultType } from "@/components/CodeEditor";
 import { BuildResult } from "@/components/BuildResult";
+import { ProjectHistory } from "@/components/ProjectHistory";
 import { Code2 } from "lucide-react";
 
 const Index = () => {
@@ -42,7 +43,10 @@ const Index = () => {
         {/* Main content */}
         <main className="mb-16">
           {!buildResult ? (
-            <CodeEditor onBuild={handleBuild} />
+            <div className="space-y-8">
+              <ProjectHistory onLoadProject={handleBuild} />
+              <CodeEditor onBuild={handleBuild} />
+            </div>
           ) : (
             <BuildResult result={buildResult} onReset={handleReset} />
           )}
