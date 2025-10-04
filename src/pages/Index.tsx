@@ -2,7 +2,7 @@ import { useState } from "react";
 import { CodeEditor, BuildResult as BuildResultType } from "@/components/CodeEditor";
 import { BuildResult } from "@/components/BuildResult";
 import { ProjectHistory } from "@/components/ProjectHistory";
-import { Code2 } from "lucide-react";
+import { Code2, Zap, CheckCircle2 } from "lucide-react";
 
 const Index = () => {
   const [buildResult, setBuildResult] = useState<BuildResultType | null>(null);
@@ -29,15 +29,30 @@ const Index = () => {
           <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-gradient-to-br from-primary/20 to-secondary/20 mb-6 backdrop-blur-xl border border-primary/20">
             <Code2 className="w-10 h-10 text-primary" />
           </div>
-          <h1 className="text-5xl md:text-6xl font-bold mb-4">
+          <h1 className="text-5xl md:text-6xl font-bold mb-4 flex items-center justify-center gap-3">
             <span className="bg-gradient-to-r from-primary via-secondary to-primary bg-clip-text text-transparent">
               CodeForge
             </span>
+            <Zap className="w-12 h-12 text-primary animate-pulse" />
           </h1>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            AI-powered Code-zu-App Builder. Gib Code-Fragmente ein und 
-            erhalte eine vollständige, lauffähige App.
+            Der intelligenteste Code-zu-App Builder. Von simplen Code-Snippets zu 
+            vollständigen Mobile-Apps mit APK-Export in Sekunden.
           </p>
+          <div className="flex gap-4 justify-center mt-6 text-sm text-muted-foreground">
+            <div className="flex items-center gap-2">
+              <CheckCircle2 className="h-4 w-4 text-green-500" />
+              KI-powered
+            </div>
+            <div className="flex items-center gap-2">
+              <CheckCircle2 className="h-4 w-4 text-green-500" />
+              Capacitor Native
+            </div>
+            <div className="flex items-center gap-2">
+              <CheckCircle2 className="h-4 w-4 text-green-500" />
+              APK-Export
+            </div>
+          </div>
         </header>
 
         {/* Main content */}

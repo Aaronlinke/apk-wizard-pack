@@ -1,138 +1,283 @@
-import { BuildResult as BuildResultType } from "./CodeEditor";
-import { Button } from "@/components/ui/button";
-import { Download, FileCode, Package, ArrowLeft } from "lucide-react";
-import { toast } from "sonner";
-import JSZip from "jszip";
+import { useState } from 'react';
+import { Button } from './ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
+import { Badge } from './ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
+import { ScrollArea } from './ui/scroll-area';
+import { Download, FileCode, Package, Smartphone, FolderTree, CheckCircle2, AlertCircle, ArrowLeft } from 'lucide-react';
+import { toast } from 'sonner';
+import { supabase } from '@/integrations/supabase/client';
+import JSZip from 'jszip';
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
+import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 
 interface BuildResultProps {
-  result: BuildResultType;
+  result: {
+    appName: string;
+    description: string;
+    files: Array<{
+      name: string;
+      content: string;
+      type: string;
+    }>;
+    buildInstructions: string;
+    packageJson?: any;
+  };
   onReset: () => void;
 }
 
 export const BuildResult = ({ result, onReset }: BuildResultProps) => {
-  const downloadFile = (filename: string, content: string) => {
-    const blob = new Blob([content], { type: "text/plain" });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = filename;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
-    toast.success(`${filename} heruntergeladen`);
-  };
+  const [isCompiling, setIsCompiling] = useState(false);
+  const [compilationResult, setCompilationResult] = useState<any>(null);
 
-  const downloadAllAsZip = async () => {
+  const downloadAsZip = async () => {
     try {
       const zip = new JSZip();
       
-      result.files.forEach((file) => {
+      result.files.forEach(file => {
         zip.file(file.name, file.content);
       });
 
-      if (result.packageJson) {
-        zip.file("package.json", JSON.stringify(result.packageJson, null, 2));
-      }
-
-      zip.file("README.md", `# ${result.appName}\n\n${result.description}\n\n## Build Anleitung\n\n${result.buildInstructions}`);
-
-      const blob = await zip.generateAsync({ type: "blob" });
+      const blob = await zip.generateAsync({ type: 'blob' });
       const url = URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = `${result.appName.replace(/\s+/g, "-")}.zip`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${result.appName}.zip`;
+      a.click();
       URL.revokeObjectURL(url);
       
-      toast.success("ZIP-Datei heruntergeladen!");
+      toast.success('ZIP-Datei erfolgreich heruntergeladen!');
     } catch (error) {
-      console.error("ZIP error:", error);
-      toast.error("Fehler beim Erstellen der ZIP-Datei");
+      console.error('ZIP download error:', error);
+      toast.error('Fehler beim Erstellen der ZIP-Datei');
     }
   };
 
+  const compileToApk = async () => {
+    setIsCompiling(true);
+    setCompilationResult(null);
+
+    try {
+      const { data, error } = await supabase.functions.invoke('compile-apk', {
+        body: {
+          appName: result.appName,
+          files: result.files,
+          packageJson: result.packageJson
+        }
+      });
+
+      if (error) throw error;
+
+      setCompilationResult(data);
+      
+      if (data.status === 'instructions') {
+        toast.info('APK-Build-Anleitung generiert', {
+          description: 'Folge den Schritten um deine APK zu erstellen'
+        });
+      } else if (data.apkUrl) {
+        toast.success('APK erfolgreich kompiliert!');
+      }
+    } catch (error) {
+      console.error('APK compilation error:', error);
+      toast.error('Fehler bei der APK-Kompilierung');
+    } finally {
+      setIsCompiling(false);
+    }
+  };
+
+  const getLanguageFromType = (type: string) => {
+    const map: Record<string, string> = {
+      typescript: 'typescript',
+      javascript: 'javascript',
+      json: 'json',
+      html: 'html',
+      css: 'css',
+      markdown: 'markdown',
+    };
+    return map[type] || 'text';
+  };
+
+  const filesByFolder = result.files.reduce((acc, file) => {
+    const folder = file.name.includes('/') 
+      ? file.name.split('/')[0] 
+      : 'root';
+    if (!acc[folder]) acc[folder] = [];
+    acc[folder].push(file);
+    return acc;
+  }, {} as Record<string, typeof result.files>);
+
   return (
-    <div className="w-full max-w-6xl mx-auto space-y-8">
-      <div className="flex items-center justify-between">
-        <Button
-          onClick={onReset}
-          variant="outline"
-          className="border-primary/30 hover:border-primary hover:bg-primary/10"
-        >
-          <ArrowLeft className="mr-2 h-4 w-4" />
-          Zurück zum Editor
-        </Button>
-        <Button
-          onClick={downloadAllAsZip}
-          className="bg-gradient-to-r from-primary to-secondary hover:opacity-90 transition-opacity font-semibold text-background"
-        >
-          <Package className="mr-2 h-4 w-4" />
-          Alles als ZIP herunterladen
-        </Button>
-      </div>
+    <div className="space-y-6 animate-fade-in">
+      {/* Back Button */}
+      <Button onClick={onReset} variant="ghost" className="gap-2">
+        <ArrowLeft className="h-4 w-4" />
+        Neues Projekt starten
+      </Button>
 
-      <div className="relative">
-        <div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-secondary/20 blur-3xl rounded-full" />
-        <div className="relative backdrop-blur-xl bg-card/40 border border-primary/20 rounded-2xl p-8 shadow-[0_8px_32px_rgba(0,0,0,0.4)]">
-          <div className="mb-6">
-            <h2 className="text-3xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent mb-2">
-              {result.appName}
-            </h2>
-            <p className="text-muted-foreground">{result.description}</p>
+      {/* App Info Header */}
+      <Card className="border-primary/20 bg-gradient-to-br from-background to-primary/5">
+        <CardHeader>
+          <div className="flex items-start justify-between">
+            <div className="space-y-2">
+              <CardTitle className="text-2xl flex items-center gap-2">
+                <Package className="h-6 w-6 text-primary" />
+                {result.appName}
+              </CardTitle>
+              <CardDescription className="text-base">
+                {result.description}
+              </CardDescription>
+            </div>
+            <Badge variant="secondary" className="gap-1">
+              <CheckCircle2 className="h-3 w-3" />
+              Generiert
+            </Badge>
           </div>
+        </CardHeader>
+        <CardContent>
+          <div className="flex gap-3">
+            <Button onClick={downloadAsZip} className="gap-2">
+              <Download className="h-4 w-4" />
+              Als ZIP herunterladen
+            </Button>
+            <Button 
+              onClick={compileToApk} 
+              variant="secondary"
+              disabled={isCompiling}
+              className="gap-2"
+            >
+              <Smartphone className="h-4 w-4" />
+              {isCompiling ? 'Kompiliere...' : 'APK kompilieren'}
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
 
-          <div className="space-y-4">
-            <div className="backdrop-blur-xl bg-background/20 border border-primary/10 rounded-xl p-4">
-              <h3 className="font-semibold text-foreground mb-2 flex items-center gap-2">
-                <FileCode className="w-4 h-4 text-primary" />
-                Build Anleitung
-              </h3>
-              <pre className="text-sm text-muted-foreground whitespace-pre-wrap code-font">
-                {result.buildInstructions}
+      {/* Compilation Result */}
+      {compilationResult && (
+        <Card className="border-secondary/20">
+          <CardHeader>
+            <CardTitle className="text-lg flex items-center gap-2">
+              {compilationResult.status === 'instructions' ? (
+                <>
+                  <AlertCircle className="h-5 w-5 text-yellow-500" />
+                  Build-Anleitung
+                </>
+              ) : (
+                <>
+                  <CheckCircle2 className="h-5 w-5 text-green-500" />
+                  APK bereit
+                </>
+              )}
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ScrollArea className="h-[300px] w-full rounded-md border p-4">
+              <pre className="text-sm whitespace-pre-wrap">
+                {compilationResult.instructions || compilationResult.message}
               </pre>
-            </div>
+            </ScrollArea>
+            {compilationResult.apkUrl && (
+              <Button asChild className="mt-4">
+                <a href={compilationResult.apkUrl} download>
+                  <Download className="h-4 w-4 mr-2" />
+                  APK herunterladen
+                </a>
+              </Button>
+            )}
+          </CardContent>
+        </Card>
+      )}
 
-            <div>
-              <h3 className="font-semibold text-foreground mb-4">
-                Generierte Dateien ({result.files.length})
-              </h3>
-              <div className="grid gap-3">
-                {result.files.map((file, idx) => (
-                  <div
-                    key={idx}
-                    className="group backdrop-blur-xl bg-card/20 border border-primary/10 rounded-xl p-4 hover:border-primary/30 transition-all"
-                  >
-                    <div className="flex items-center justify-between mb-3">
-                      <div className="flex items-center gap-2">
-                        <FileCode className="w-4 h-4 text-primary" />
-                        <span className="font-medium code-font text-sm">{file.name}</span>
-                        <span className="text-xs px-2 py-1 rounded-md bg-primary/10 text-primary border border-primary/20">
-                          {file.type}
-                        </span>
+      {/* Files Display */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <FolderTree className="h-5 w-5" />
+            Generierte Dateien ({result.files.length})
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Tabs defaultValue="tree" className="w-full">
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="tree">Dateibaum</TabsTrigger>
+              <TabsTrigger value="files">Alle Dateien</TabsTrigger>
+            </TabsList>
+            
+            <TabsContent value="tree" className="space-y-4">
+              {Object.entries(filesByFolder).map(([folder, files]) => (
+                <div key={folder} className="space-y-2">
+                  <h4 className="font-semibold text-sm flex items-center gap-2">
+                    <FolderTree className="h-4 w-4 text-primary" />
+                    {folder}
+                  </h4>
+                  <div className="pl-6 space-y-1">
+                    {files.map((file, idx) => (
+                      <div key={idx} className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <FileCode className="h-3 w-3" />
+                        {file.name}
                       </div>
-                      <Button
-                        onClick={() => downloadFile(file.name, file.content)}
-                        size="sm"
-                        variant="outline"
-                        className="border-primary/30 hover:border-primary hover:bg-primary/10"
-                      >
-                        <Download className="h-3 w-3 mr-1" />
-                        Download
-                      </Button>
-                    </div>
-                    <pre className="text-xs text-muted-foreground bg-background/50 rounded p-3 overflow-x-auto code-font max-h-40">
-                      {file.content}
-                    </pre>
+                    ))}
                   </div>
+                </div>
+              ))}
+            </TabsContent>
+            
+            <TabsContent value="files">
+              <Tabs defaultValue={result.files[0]?.name} className="w-full">
+                <ScrollArea className="h-[60px] w-full">
+                  <TabsList className="inline-flex w-max">
+                    {result.files.map((file, idx) => (
+                      <TabsTrigger key={idx} value={file.name} className="text-xs">
+                        {file.name.split('/').pop()}
+                      </TabsTrigger>
+                    ))}
+                  </TabsList>
+                </ScrollArea>
+                
+                {result.files.map((file, idx) => (
+                  <TabsContent key={idx} value={file.name}>
+                    <ScrollArea className="h-[500px] w-full rounded-md border">
+                      <SyntaxHighlighter
+                        language={getLanguageFromType(file.type)}
+                        style={vscDarkPlus}
+                        customStyle={{
+                          margin: 0,
+                          borderRadius: '0.375rem',
+                          fontSize: '0.875rem',
+                        }}
+                        showLineNumbers
+                      >
+                        {file.content}
+                      </SyntaxHighlighter>
+                    </ScrollArea>
+                  </TabsContent>
                 ))}
+              </Tabs>
+            </TabsContent>
+          </Tabs>
+        </CardContent>
+      </Card>
+
+      {/* Build Instructions */}
+      {result.buildInstructions && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <FileCode className="h-5 w-5" />
+              Build-Anleitung
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ScrollArea className="h-[400px] w-full rounded-md border p-4">
+              <div className="prose prose-sm max-w-none dark:prose-invert">
+                <pre className="whitespace-pre-wrap text-sm">
+                  {result.buildInstructions}
+                </pre>
               </div>
-            </div>
-          </div>
-        </div>
-      </div>
+            </ScrollArea>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 };
