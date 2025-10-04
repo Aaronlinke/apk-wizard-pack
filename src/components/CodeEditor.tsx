@@ -2,8 +2,11 @@ import { useState } from "react";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Code2, Loader2, Rocket } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Code2, Loader2, Rocket, Upload, Sparkles } from "lucide-react";
 import { toast } from "sonner";
+import { FileUpload } from "./FileUpload";
+import { TemplateSelector } from "./TemplateSelector";
 
 interface CodeEditorProps {
   onBuild: (result: BuildResult) => void;
@@ -92,6 +95,23 @@ export const CodeEditor = ({ onBuild }: CodeEditorProps) => {
     toast.success("Beispiel-Code geladen");
   };
 
+  const handleFileLoad = (content: string, filename: string) => {
+    setCode(content);
+    const ext = filename.split('.').pop()?.toLowerCase();
+    const langMap: Record<string, string> = {
+      'html': 'html', 'js': 'javascript', 'ts': 'typescript',
+      'py': 'python', 'java': 'java', 'css': 'css', 'json': 'json'
+    };
+    if (ext && langMap[ext]) {
+      setLanguage(langMap[ext]);
+    }
+  };
+
+  const handleTemplateSelect = (templateCode: string, templateLanguage: string) => {
+    setCode(templateCode);
+    setLanguage(templateLanguage);
+  };
+
   return (
     <div className="w-full max-w-6xl mx-auto">
       <div className="relative">
@@ -111,71 +131,116 @@ export const CodeEditor = ({ onBuild }: CodeEditorProps) => {
             </div>
           </div>
 
-          <div className="space-y-4">
-            <div className="flex gap-4">
-              <div className="flex-1">
+          <Tabs defaultValue="code" className="space-y-4">
+            <TabsList className="grid w-full grid-cols-3 bg-background/50">
+              <TabsTrigger value="code" className="data-[state=active]:bg-primary/20">
+                <Code2 className="w-4 h-4 mr-2" />
+                Code
+              </TabsTrigger>
+              <TabsTrigger value="template" className="data-[state=active]:bg-primary/20">
+                <Sparkles className="w-4 h-4 mr-2" />
+                Vorlagen
+              </TabsTrigger>
+              <TabsTrigger value="upload" className="data-[state=active]:bg-primary/20">
+                <Upload className="w-4 h-4 mr-2" />
+                Upload
+              </TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="code" className="space-y-4">
+              <div className="flex gap-4">
+                <div className="flex-1">
+                  <label className="text-sm font-medium text-foreground mb-2 block">
+                    Programmiersprache
+                  </label>
+                  <Select value={language} onValueChange={setLanguage}>
+                    <SelectTrigger className="bg-background/50 border-primary/30">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {languages.map((lang) => (
+                        <SelectItem key={lang.value} value={lang.value}>
+                          {lang.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="flex items-end">
+                  <Button
+                    onClick={loadExample}
+                    variant="outline"
+                    className="border-primary/30 hover:border-primary hover:bg-primary/10"
+                  >
+                    Beispiel laden
+                  </Button>
+                </div>
+              </div>
+
+              <div>
                 <label className="text-sm font-medium text-foreground mb-2 block">
-                  Programmiersprache
+                  Dein Code
                 </label>
-                <Select value={language} onValueChange={setLanguage}>
-                  <SelectTrigger className="bg-background/50 border-primary/30">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {languages.map((lang) => (
-                      <SelectItem key={lang.value} value={lang.value}>
-                        {lang.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <Textarea
+                  value={code}
+                  onChange={(e) => setCode(e.target.value)}
+                  placeholder={`// Gib hier deinen ${language.toUpperCase()}-Code ein...\n// Die AI wird daraus eine vollständige App erstellen`}
+                  className="code-font min-h-[400px] bg-background/50 border-primary/30 focus:border-primary font-mono text-sm"
+                />
               </div>
-              <div className="flex items-end">
-                <Button
-                  onClick={loadExample}
-                  variant="outline"
-                  className="border-primary/30 hover:border-primary hover:bg-primary/10"
-                >
-                  Beispiel laden
-                </Button>
-              </div>
-            </div>
+            </TabsContent>
 
-            <div>
-              <label className="text-sm font-medium text-foreground mb-2 block">
-                Dein Code
-              </label>
-              <Textarea
-                value={code}
-                onChange={(e) => setCode(e.target.value)}
-                placeholder={`// Gib hier deinen ${language.toUpperCase()}-Code ein...\n// Die AI wird daraus eine vollständige App erstellen`}
-                className="code-font min-h-[400px] bg-background/50 border-primary/30 focus:border-primary font-mono text-sm"
-              />
-            </div>
+            <TabsContent value="template">
+              <TemplateSelector onSelectTemplate={handleTemplateSelect} />
+            </TabsContent>
 
-            <Button
-              onClick={handleBuild}
-              disabled={isBuilding || !code.trim()}
-              className="w-full h-12 bg-gradient-to-r from-primary to-secondary hover:opacity-90 transition-opacity font-semibold text-background"
-            >
-              {isBuilding ? (
-                <>
-                  <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                  Generiere App...
-                </>
-              ) : (
-                <>
-                  <Rocket className="mr-2 h-5 w-5" />
-                  App generieren
-                </>
-              )}
-            </Button>
-          </div>
+            <TabsContent value="upload">
+              <FileUpload onFileLoad={handleFileLoad} />
+            </TabsContent>
+          </Tabs>
+
+          <Button
+            onClick={handleBuild}
+            disabled={isBuilding || !code.trim()}
+            className="w-full h-12 mt-6 bg-gradient-to-r from-primary to-secondary hover:opacity-90 transition-opacity font-semibold text-background"
+          >
+            {isBuilding ? (
+              <>
+                <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                Generiere App...
+              </>
+            ) : (
+              <>
+                <Rocket className="mr-2 h-5 w-5" />
+                App generieren
+              </>
+            )}
+          </Button>
 
           <div className="mt-6 pt-6 border-t border-primary/10">
-            <p className="text-xs text-muted-foreground">
-              💡 Die AI analysiert deinen Code, ergänzt fehlende Teile und erstellt eine vollständige, lauffähige App
-            </p>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs text-muted-foreground">
+              <div className="flex items-start gap-2">
+                <div className="text-primary">✓</div>
+                <div>
+                  <strong className="text-foreground">Vollständige App</strong>
+                  <p>Alle nötigen Dateien werden generiert</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-2">
+                <div className="text-primary">✓</div>
+                <div>
+                  <strong className="text-foreground">Mobile-Ready</strong>
+                  <p>Mit Capacitor für iOS & Android</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-2">
+                <div className="text-primary">✓</div>
+                <div>
+                  <strong className="text-foreground">Build-Anleitung</strong>
+                  <p>Schritt-für-Schritt Dokumentation</p>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
