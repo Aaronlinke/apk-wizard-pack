@@ -402,7 +402,6 @@ Die App muss als APK kompilierbar sein und auch als PWA funktionieren.`;
           { role: 'system', content: systemPrompt },
           { role: 'user', content: userPrompt }
         ],
-        temperature: 0.7,
         max_completion_tokens: 12000,
       }),
     });
