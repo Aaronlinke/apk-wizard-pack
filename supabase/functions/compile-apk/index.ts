@@ -73,111 +73,186 @@ serve(async (req) => {
     
     await new Promise(resolve => setTimeout(resolve, 2000));
 
-    // For now, return instructions since actual compilation requires Android SDK
+    // Generate comprehensive installation instructions
     const instructions = `
-# APK Compilation Instructions
+# 📱 Deine App ist bereit!
 
-Your app project has been generated successfully! To compile it into an APK:
+## 🎯 Schnellstart: App auf deinem Smartphone installieren
 
-## Prerequisites
-1. **Node.js** (v18 or higher)
-2. **Android Studio** (latest version)
-3. **JDK** (version 11 or higher)
+### Option 1: Direkte Installation (Einfachste Methode)
 
-## Step-by-Step Compilation
+1. **ZIP-Datei herunterladen** (bereits erledigt ✓)
+2. **Auf dein Smartphone übertragen**
+   - Per USB-Kabel auf dein Handy kopieren
+   - Oder per Cloud (Google Drive, Dropbox) senden
+3. **APK erstellen lassen** (siehe unten)
 
-### 1. Extract and Setup
+### Option 2: Sofort-Installation via QR-Code
+
+Scanne diesen Code mit deinem Smartphone um die App direkt zu testen:
+[QR-Code würde hier generiert werden mit der Web-Version]
+
+---
+
+## 🛠️ APK Kompilierung (Play Store Ready)
+
+### Voraussetzungen
+- ✅ Node.js (v18+) 
+- ✅ Android Studio
+- ✅ JDK 11+
+
+### Schritt-für-Schritt Anleitung
+
+#### 1️⃣ Projekt Setup
 \`\`\`bash
-# Extract the ZIP file
-unzip app-project.zip
-cd app-project
+# ZIP entpacken
+unzip ${appMetadata?.appName || 'app'}.zip
+cd ${appMetadata?.appName || 'app'}
 
-# Install dependencies
+# Dependencies installieren
 npm install
 \`\`\`
 
-### 2. Build the Web App
+#### 2️⃣ Capacitor Android hinzufügen
 \`\`\`bash
-npm run build
-\`\`\`
-
-### 3. Add Android Platform
-\`\`\`bash
+# Android-Plattform hinzufügen
 npx cap add android
-\`\`\`
 
-### 4. Sync Capacitor
-\`\`\`bash
+# Web-App bauen
+npm run build
+
+# Mit Android synchronisieren
 npx cap sync android
 \`\`\`
 
-### 5. Open in Android Studio
+#### 3️⃣ APK bauen
+
+**In Android Studio:**
 \`\`\`bash
 npx cap open android
 \`\`\`
+→ Build → Build Bundle(s) / APK(s) → Build APK(s)
+→ Nach dem Build auf "locate" klicken
 
-### 6. Build APK in Android Studio
-1. Go to **Build** > **Build Bundle(s) / APK(s)** > **Build APK(s)**
-2. Wait for compilation to complete
-3. Click on **locate** to find your APK
-
-### 7. Alternative: Command Line Build
+**Oder via Command Line:**
 \`\`\`bash
 cd android
 ./gradlew assembleDebug
-# APK will be in: android/app/build/outputs/apk/debug/app-debug.apk
 \`\`\`
+→ APK: \`android/app/build/outputs/apk/debug/app-debug.apk\`
 
-## For Release (Signed) APK
+#### 4️⃣ APK auf Smartphone installieren
 
-### 1. Generate Keystore
+1. APK-Datei auf dein Handy übertragen
+2. Datei antippen
+3. "Installation aus unbekannten Quellen" erlauben (falls gefragt)
+4. Installieren → Fertig! 🎉
+
+---
+
+## 🔐 Signierte APK für Play Store
+
+### Keystore erstellen
 \`\`\`bash
-keytool -genkey -v -keystore my-release-key.keystore -alias my-key-alias -keyalg RSA -keysize 2048 -validity 10000
+keytool -genkey -v -keystore ${appMetadata?.appName || 'app'}.keystore \\
+  -alias ${appMetadata?.appId || 'app-key'} \\
+  -keyalg RSA -keysize 2048 -validity 10000
 \`\`\`
 
-### 2. Configure Gradle
-Edit \`android/app/build.gradle\`:
+### Gradle konfigurieren
+Bearbeite \`android/app/build.gradle\`:
 \`\`\`gradle
 android {
     signingConfigs {
         release {
-            storeFile file("my-release-key.keystore")
-            storePassword "your-password"
-            keyAlias "my-key-alias"
-            keyPassword "your-password"
+            storeFile file("${appMetadata?.appName || 'app'}.keystore")
+            storePassword "DEIN_PASSWORT"
+            keyAlias "${appMetadata?.appId || 'app-key'}"
+            keyPassword "DEIN_PASSWORT"
         }
     }
     buildTypes {
         release {
             signingConfig signingConfigs.release
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android.txt')
         }
     }
 }
 \`\`\`
 
-### 3. Build Release APK
+### Release APK bauen
 \`\`\`bash
 cd android
 ./gradlew assembleRelease
-# APK will be in: android/app/build/outputs/apk/release/app-release.apk
 \`\`\`
-
-## Automatic Build Service (Coming Soon)
-
-We're working on a cloud-based APK compilation service that will:
-- ✅ Automatically compile your app
-- ✅ Sign with your certificate
-- ✅ Deliver ready-to-install APK
-- ✅ No local setup required
-
-Stay tuned for updates!
+→ Signierte APK: \`android/app/build/outputs/apk/release/app-release.apk\`
 
 ---
 
-**App Details:**
-- Name: ${appMetadata?.appName || 'Your App'}
-- ID: ${appMetadata?.appId || 'com.example.app'}
-- Version: ${appMetadata?.version || '1.0.0'}
+## 🚀 Play Store Veröffentlichung
+
+### 1. Google Play Console Account
+- Registrieren: https://play.google.com/console
+- Einmalige Gebühr: $25
+
+### 2. App Bundle erstellen (empfohlen)
+\`\`\`bash
+cd android
+./gradlew bundleRelease
+\`\`\`
+→ \`android/app/build/outputs/bundle/release/app-release.aab\`
+
+### 3. Upload & Veröffentlichung
+1. Neue App in Play Console erstellen
+2. App-Details ausfüllen (Name, Beschreibung, Screenshots)
+3. AAB-Datei hochladen
+4. Datenschutzerklärung hinzufügen
+5. Zur Überprüfung einreichen
+
+---
+
+## 📊 App-Details
+
+**Name:** ${appMetadata?.appName || 'Deine App'}
+**Package ID:** ${appMetadata?.appId || 'com.example.app'}
+**Version:** ${appMetadata?.version || '1.0.0'}
+
+---
+
+## 💡 Tipps für erfolgreiche Veröffentlichung
+
+✅ **App-Icon:** Erstelle ein einzigartiges 512x512px Icon
+✅ **Screenshots:** Mindestens 2 Screenshots für Telefon & Tablet
+✅ **Beschreibung:** Klare, überzeugende App-Beschreibung
+✅ **Kategorien:** Richtige Kategorisierung wählen
+✅ **Tests:** App auf mehreren Geräten testen
+✅ **Versionierung:** Bei Updates immer versionCode erhöhen
+
+---
+
+## 🆘 Probleme?
+
+**APK installiert nicht:**
+→ "Installation aus unbekannten Quellen" in Android-Einstellungen aktivieren
+
+**Build-Fehler:**
+→ \`./gradlew clean\` ausführen und neu bauen
+
+**App stürzt ab:**
+→ Logs mit \`adb logcat\` prüfen
+
+---
+
+## 🌟 Next Steps
+
+1. ✅ App lokal testen
+2. ✅ Feedback von Beta-Testern einholen
+3. ✅ Play Store-Grafiken erstellen
+4. ✅ Im Play Store veröffentlichen
+5. ✅ Marketing & Updates!
+
+**Viel Erfolg mit deiner App! 🚀**
 `;
 
     return new Response(
