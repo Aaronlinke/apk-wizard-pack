@@ -397,13 +397,13 @@ Die App muss als APK kompilierbar sein und auch als PWA funktionieren.`;
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'google/gemini-2.5-flash',
+        model: 'openai/gpt-5-mini',
         messages: [
           { role: 'system', content: systemPrompt },
           { role: 'user', content: userPrompt }
         ],
-        temperature: 0.8, // Higher temperature for more creativity
-        max_tokens: 16000, // More tokens for comprehensive apps
+        temperature: 0.7,
+        max_completion_tokens: 12000,
       }),
     });
 
@@ -430,10 +430,19 @@ Die App muss als APK kompilierbar sein und auch als PWA funktionieren.`;
     }
 
     // Extract JSON from potential markdown code blocks
-    let jsonContent = content;
+    let jsonContent = content.trim();
+    
+    // Remove markdown code blocks if present
     const jsonMatch = content.match(/```(?:json)?\s*(\{[\s\S]*?\})\s*```/);
     if (jsonMatch) {
-      jsonContent = jsonMatch[1];
+      jsonContent = jsonMatch[1].trim();
+    }
+    
+    // Remove any leading/trailing text before/after JSON
+    const jsonStart = jsonContent.indexOf('{');
+    const jsonEnd = jsonContent.lastIndexOf('}');
+    if (jsonStart !== -1 && jsonEnd !== -1) {
+      jsonContent = jsonContent.substring(jsonStart, jsonEnd + 1);
     }
 
     let buildResult;
@@ -441,8 +450,20 @@ Die App muss als APK kompilierbar sein und auch als PWA funktionieren.`;
       buildResult = JSON.parse(jsonContent);
     } catch (parseError) {
       console.error('JSON parse error:', parseError);
-      console.error('Content:', jsonContent);
-      throw new Error('Konnte AI-Antwort nicht verarbeiten');
+      console.error('Content length:', jsonContent.length);
+      console.error('Content preview:', jsonContent.substring(0, 500));
+      console.error('Content end:', jsonContent.substring(jsonContent.length - 500));
+      
+      return new Response(
+        JSON.stringify({ 
+          error: 'Die AI-Antwort konnte nicht verarbeitet werden. Bitte versuche es mit einem einfacheren Code-Beispiel oder reduziere die Komplexität.',
+          details: parseError instanceof Error ? parseError.message : 'JSON Parse Error'
+        }),
+        { 
+          status: 500, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        }
+      );
     }
 
     console.log('Build result:', { 
