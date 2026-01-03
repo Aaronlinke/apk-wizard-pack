@@ -26,367 +26,54 @@ serve(async (req) => {
       throw new Error('LOVABLE_API_KEY nicht konfiguriert');
     }
 
-    // AI prompt to analyze code and generate mobile-ready app structure with enhanced intelligence
-    const systemPrompt = `Du bist ein ELITE-EXPERTE für Production-Ready Mobile-App-Entwicklung mit Capacitor, React, TypeScript, Progressive Web Apps und modernem UI/UX-Design.
+    // Simplified, focused system prompt for reliable JSON output
+    const systemPrompt = `Du bist ein Code-zu-Web-App-Konverter. Wandle den gegebenen Code in ein vollständiges Vite + React + TypeScript Projekt um.
 
-🧠 INTELLIGENTE CODE-ANALYSE:
-- Erkenne das KONZEPT und die ABSICHT hinter dem Code
-- Erweitere simple Beispiele zu vollwertigen Apps mit sinnvollen Features
-- Füge automatisch fehlende Funktionalität hinzu (z.B. Datenpersistenz, Error-Handling)
-- Optimiere die User Experience durch durchdachte UI/UX-Patterns
-- Implementiere Best Practices (Accessibility, Performance, Security)
+WICHTIG: Antworte NUR mit einem JSON-Objekt, KEIN Text davor oder danach!
 
-🎨 DESIGN-INTELLIGENZ:
-- Erstelle ein kohärentes Farbschema passend zum App-Typ
-- Nutze moderne UI-Patterns (Cards, Modals, Toasts, Animations)
-- Implementiere Dark/Light Mode Support
-- Responsive Design für alle Bildschirmgrößen
-- Glassmorphism und moderne Gradienten für Premium-Look
-
-🔧 TECHNISCHE INTELLIGENZ:
-- Füge intelligente Features hinzu: Suche, Filter, Sortierung
-- Implementiere Offline-Support mit LocalStorage
-- Validierung und Error-Handling
-- Loading States und Skeleton Screens
-- Optimistische Updates für bessere UX
-
-📱 MOBILE-FIRST INTELLIGENZ:
-- Touch-optimierte Interaktionen
-- Native Gesten (Swipe, Pull-to-Refresh)
-- Haptic Feedback bei wichtigen Aktionen
-- StatusBar und SafeArea Handling
-- Keyboard-Management
-
-Analysiere den Code und erstelle eine VOLLSTÄNDIGE, PROFESSIONELLE, PRODUCTION-READY Mobile-App mit ALLEN notwendigen Dateien die:
-- SOFORT als APK kompilierbar ist
-- WUNDERSCHÖNES, MODERNES UI hat mit glatten Animationen
-- ALLE Capacitor Native Features nutzt (Haptics, StatusBar, SplashScreen)
-- PERFORMANCE-OPTIMIERT ist
-- MOBILE-FIRST responsive design hat
-- ERROR HANDLING und Loading States hat
-
-Antworte AUSSCHLIESSLICH mit einem JSON-Objekt in diesem exakten Format:
+Das JSON muss exakt dieses Format haben:
 {
-  "appName": "string (kebab-case, z.B. my-awesome-app)",
-  "description": "string (detaillierte Beschreibung der App)",
+  "appName": "app-name-kebab-case",
+  "description": "Kurze Beschreibung der App",
   "files": [
-    {
-      "name": "string (exakter Dateipfad)",
-      "content": "string (vollständiger, fehlerfreier Code)",
-      "type": "string (typescript, json, html, css, markdown, etc.)"
-    }
+    {"name": "package.json", "content": "...", "type": "json"},
+    {"name": "vite.config.ts", "content": "...", "type": "typescript"},
+    {"name": "tsconfig.json", "content": "...", "type": "json"},
+    {"name": "index.html", "content": "...", "type": "html"},
+    {"name": "src/main.tsx", "content": "...", "type": "typescript"},
+    {"name": "src/App.tsx", "content": "...", "type": "typescript"},
+    {"name": "src/index.css", "content": "...", "type": "css"},
+    {"name": "tailwind.config.js", "content": "...", "type": "javascript"},
+    {"name": "postcss.config.js", "content": "...", "type": "javascript"}
   ],
-  "buildInstructions": "string (detaillierte Markdown-formatierte Anleitung)",
-  "packageJson": {
-    "name": "string",
-    "version": "1.0.0",
-    "type": "module",
-    "dependencies": {
-      "react": "^18.2.0",
-      "react-dom": "^18.2.0",
-      "@capacitor/core": "^6.1.0",
-      "@capacitor/android": "^6.1.0",
-      "@capacitor/ios": "^6.1.0",
-      "@capacitor/app": "^6.0.0",
-      "@capacitor/splash-screen": "^6.0.0",
-      "@capacitor/status-bar": "^6.0.0"
-    },
-    "devDependencies": {
-      "@capacitor/cli": "^6.1.0",
-      "@types/react": "^18.2.0",
-      "@types/react-dom": "^18.2.0",
-      "@vitejs/plugin-react": "^4.2.0",
-      "typescript": "^5.3.0",
-      "vite": "^5.0.0"
-    },
-    "scripts": {
-      "dev": "vite",
-      "build": "tsc && vite build",
-      "preview": "vite preview",
-      "cap:sync": "cap sync",
-      "cap:android": "cap open android",
-      "cap:ios": "cap open ios",
-      "cap:build": "npm run build && cap sync",
-      "cap:run:android": "npm run build && cap sync && cap run android",
-      "cap:run:ios": "npm run build && cap sync && cap run ios"
-    }
-  }
+  "buildInstructions": "Markdown Build-Anleitung",
+  "packageJson": { "name": "...", "version": "1.0.0", ... }
 }
 
-🔴 PFLICHT-DATEIEN (ALLE MÜSSEN ERSTELLT WERDEN):
+PFLICHT-DATEIEN:
+1. package.json - mit react, react-dom, vite, typescript, tailwindcss
+2. vite.config.ts - Vite + React Plugin
+3. tsconfig.json - TypeScript Config
+4. index.html - Root HTML mit <div id="root">
+5. src/main.tsx - React Entry Point
+6. src/App.tsx - Hauptkomponente mit dem umgewandelten Code
+7. src/index.css - Tailwind CSS Imports + Styles
+8. tailwind.config.js - Tailwind Konfiguration
+9. postcss.config.js - PostCSS für Tailwind
 
-1. **capacitor.config.ts** - Vollständige Capacitor-Konfiguration
-   - App-ID: com.example.[appname]
-   - App-Name: [Benutzerfreundlicher Name]
-   - webDir: "dist"
-   - Plugins: SplashScreen, StatusBar konfigurieren
-   - Android & iOS Build-Settings
-
-2. **package.json** - Vollständiges npm-Package mit ERWEITERTEN Dependencies:
-   {
-     "dependencies": {
-       "react": "^18.3.1",
-       "react-dom": "^18.3.1",
-       "@capacitor/core": "^6.1.2",
-       "@capacitor/android": "^6.1.2",
-       "@capacitor/ios": "^6.1.2",
-       "@capacitor/app": "^6.0.1",
-       "@capacitor/splash-screen": "^6.0.2",
-       "@capacitor/status-bar": "^6.0.1",
-       "@capacitor/haptics": "^6.0.1",
-       "@capacitor/keyboard": "^6.0.2",
-       "@capacitor/network": "^6.0.2",
-       "@capacitor/share": "^6.0.2",
-       "lucide-react": "^0.460.0"
-     },
-     "devDependencies": {
-       "@capacitor/cli": "^6.1.2",
-       "@types/react": "^18.3.12",
-       "@types/react-dom": "^18.3.1",
-       "@vitejs/plugin-react": "^4.3.3",
-       "typescript": "^5.6.3",
-       "vite": "^5.4.11",
-       "autoprefixer": "^10.4.20",
-       "postcss": "^8.4.49",
-       "tailwindcss": "^3.4.15"
-     },
-     "scripts": {
-       "dev": "vite",
-       "build": "tsc && vite build",
-       "preview": "vite preview",
-       "cap:sync": "cap sync",
-       "cap:android": "cap open android",
-       "cap:ios": "cap open ios",
-       "cap:build": "npm run build && cap sync",
-       "cap:run:android": "npm run build && cap sync && cap run android",
-       "cap:run:ios": "npm run build && cap sync && cap run ios"
-     }
-   }
-
-3. **tsconfig.json** - TypeScript-Konfiguration
-   - Strict mode aktiviert
-   - React JSX support
-   - Moderne ES-Features
-
-4. **vite.config.ts** - Vite Build-Konfiguration
-   - React Plugin
-   - Build-Optimierungen
-   - PWA-Support
-
-5. **index.html** - Vollständiges HTML5-Dokument
-   - Meta-Tags (viewport, theme-color, mobile-web-app-capable)
-   - <link rel="manifest" href="/manifest.json">
-   - <div id="root"></div>
-   - <script type="module" src="/src/main.tsx"></script>
-
-6. **public/manifest.json** - PWA Web-Manifest
-   - name, short_name, description
-   - start_url, display: "standalone"
-   - theme_color, background_color
-   - icons: 192x192 und 512x512 (SVG-Platzhalter)
-
-7. **src/main.tsx** - React Entry-Point
-   - import React
-   - import ReactDOM
-   - import App
-   - import './index.css'
-   - ReactDOM.createRoot(document.getElementById('root')!)
-
-8. **src/App.tsx** - Haupt-React-Komponente MIT ERWEITERTEN FEATURES:
-   - TypeScript mit korrekten Types
-   - Moderne React (Hooks, Functional Components)
-   - Integriert den User-Code sinnvoll
-   - Mobile-optimiert mit Touch-Gesten
-   - Responsive Design
-   - CAPACITOR FEATURES:
-     * Haptics.impact() bei Button-Klicks
-     * StatusBar.setBackgroundColor() für Theme
-     * SplashScreen.hide() beim Start
-     * Keyboard-Management
-     * Network-Status-Monitoring
-   - MODERNE UI:
-     * Gradient Backgrounds
-     * Smooth Animations (transform, opacity transitions)
-     * Loading Skeletons
-     * Pull-to-Refresh (falls sinnvoll)
-     * Bottom Navigation (falls mehrere Screens)
-     * Floating Action Buttons
-     * Card-based Design
-     * Glassmorphism Effects
-
-9. **src/index.css** - Modernes CSS MIT TAILWIND:
-   @tailwind base;
-   @tailwind components;
-   @tailwind utilities;
-   
-   @layer base {
-     :root {
-       --background: 0 0% 100%;
-       --foreground: 222.2 84% 4.9%;
-       --primary: 221.2 83.2% 53.3%;
-       --primary-foreground: 210 40% 98%;
-       --secondary: 210 40% 96.1%;
-       --accent: 210 40% 96.1%;
-       --muted: 210 40% 96.1%;
-       --destructive: 0 84.2% 60.2%;
-       --border: 214.3 31.8% 91.4%;
-       --radius: 0.5rem;
-     }
-     .dark {
-       --background: 222.2 84% 4.9%;
-       --foreground: 210 40% 98%;
-       --primary: 217.2 91.2% 59.8%;
-       /* ... dark mode colors ... */
-     }
-   }
-   
-   - CSS Variables für Theming
-   - Responsive Breakpoints  
-   - Mobile-First Design
-   - Dark Mode Support
-   - Smooth Scrolling
-   - Custom Animations (@keyframes)
-   - Touch-optimized (min-height: 44px für Buttons)
-
-10. **src/vite-env.d.ts** - Vite TypeScript Definitions
-    - /// <reference types="vite/client" />
-
-11. **README.md** - Vollständige Dokumentation
-    - App-Beschreibung
-    - Features
-    - Installation & Setup
-    - APK-Build-Anleitung (Schritt-für-Schritt)
-    - Deployment
-    - Troubleshooting
-
-12. **.gitignore** - Git Ignore-Datei
-    - node_modules/
-    - dist/
-    - android/
-    - ios/
-    - .env
-
-13. **tailwind.config.js** - Tailwind CSS Konfiguration:
-    module.exports = {
-      content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
-      darkMode: 'class',
-      theme: {
-        extend: {
-          colors: {
-            border: 'hsl(var(--border))',
-            background: 'hsl(var(--background))',
-            foreground: 'hsl(var(--foreground))',
-            primary: { DEFAULT: 'hsl(var(--primary))', foreground: 'hsl(var(--primary-foreground))' },
-            // ... weitere Farben
-          },
-          animation: {
-            'fade-in': 'fadeIn 0.5s ease-in-out',
-            'slide-up': 'slideUp 0.3s ease-out',
-            'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-          },
-          keyframes: {
-            fadeIn: { '0%': { opacity: '0' }, '100%': { opacity: '1' } },
-            slideUp: { '0%': { transform: 'translateY(20px)', opacity: '0' }, '100%': { transform: 'translateY(0)', opacity: '1' } },
-          }
-        }
-      }
-    }
-
-14. **postcss.config.js** - PostCSS Konfiguration:
-    export default {
-      plugins: {
-        tailwindcss: {},
-        autoprefixer: {},
-      },
-    }
-
-15. **android/res/values/strings.xml** (optional)
-    - Android App-Name
-    - Android Theme-Farben
-
-📱 BUILD-ANLEITUNG MUSS ENTHALTEN:
-
-# 🚀 APK Build-Anleitung
-
-## Voraussetzungen
-- Node.js 18+ installiert
-- Android Studio installiert
-- JDK 17+ installiert
-- Git installiert
-
-## Schritt 1: Projekt einrichten
-\`\`\`bash
-# ZIP-Datei entpacken
-unzip [app-name].zip
-cd [app-name]
-
-# Dependencies installieren
-npm install
-\`\`\`
-
-## Schritt 2: Android-Projekt initialisieren
-\`\`\`bash
-# Android-Plattform hinzufügen (nur beim ersten Mal)
-npx cap add android
-
-# Projekt bauen und synchronisieren
-npm run build
-npx cap sync
-\`\`\`
-
-## Schritt 3: Android Studio öffnen
-\`\`\`bash
-# Android Studio öffnen
-npx cap open android
-\`\`\`
-
-## Schritt 4: APK erstellen in Android Studio
-1. Warte bis Gradle-Build abgeschlossen ist
-2. Menü: **Build** → **Build Bundle(s) / APK(s)** → **Build APK(s)**
-3. Warte auf "BUILD SUCCESSFUL"
-4. Klicke auf "locate" im Popup
-
-## Schritt 5: APK finden
-Die APK befindet sich in:
-\`android/app/build/outputs/apk/debug/app-debug.apk\`
-
-## Schritt 6: APK installieren
-- Auf Android-Gerät übertragen und installieren
-- Oder: **Run** → **Run 'app'** in Android Studio
-
-## Troubleshooting
-- **Gradle-Fehler**: \`./gradlew clean\` im android-Ordner
-- **Sync-Fehler**: \`npx cap sync android --force\`
-- **Build-Fehler**: SDK-Version in \`android/app/build.gradle\` prüfen
-
-## Optional: Release APK erstellen
-\`\`\`bash
-# In Android Studio: Build → Generate Signed Bundle/APK
-# Keystore erstellen und APK signieren
-\`\`\`
-
-🎯 QUALITÄTS-ANFORDERUNGEN:
-
-1. **Fehlerfreier Code** - Keine Syntax-Fehler, alle Imports korrekt
-2. **TypeScript-Ready** - Korrekte Types, Interfaces
-3. **Mobile-Optimiert** - Touch-freundlich, responsive
-4. **Production-Ready** - Keine TODOs, keine Platzhalter
-5. **Moderne Best-Practices** - React 18, Hooks, Functional Components
-6. **PWA-Fähig** - Service Worker, Manifest, Icons
-7. **Native-Features** - Capacitor Plugins integriert
-8. **Dokumentiert** - README mit allen Infos
-
-Erstelle eine VOLLSTÄNDIGE, PROFESSIONELLE App die sofort als APK kompiliert werden kann!`;
+REGELN:
+- Wandle den User-Code intelligent in React/TypeScript um
+- Nutze Tailwind CSS für modernes Styling
+- Füge sinnvolle UI-Verbesserungen hinzu
+- Der Code muss FEHLER-FREI und lauffähig sein
+- Escape alle Strings korrekt für JSON (\\n, \\", etc.)`;
 
     const userPrompt = `Sprache: ${language}
-    
-Code:
-\`\`\`${language}
-${code}
-\`\`\`
 
-Erstelle eine vollständige MOBILE-FÄHIGE Capacitor-App basierend auf diesem Code.
-Die App muss als APK kompilierbar sein und auch als PWA funktionieren.`;
+Code:
+${code}
+
+Erstelle ein vollständiges Vite + React + TypeScript Projekt. Antworte NUR mit dem JSON-Objekt!`;
 
     console.log('Calling AI to analyze code...');
     
@@ -397,12 +84,12 @@ Die App muss als APK kompilierbar sein und auch als PWA funktionieren.`;
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'openai/gpt-5-mini',
+        model: 'google/gemini-2.5-flash',
         messages: [
           { role: 'system', content: systemPrompt },
           { role: 'user', content: userPrompt }
         ],
-        max_completion_tokens: 12000,
+        max_tokens: 8000,
       }),
     });
 
@@ -428,19 +115,23 @@ Die App muss als APK kompilierbar sein und auch als PWA funktionieren.`;
       throw new Error('Keine Antwort von AI erhalten');
     }
 
-    // Extract JSON from potential markdown code blocks
+    console.log('Raw AI content length:', content.length);
+
+    // Extract JSON from response
     let jsonContent = content.trim();
     
     // Remove markdown code blocks if present
-    const jsonMatch = content.match(/```(?:json)?\s*(\{[\s\S]*?\})\s*```/);
-    if (jsonMatch) {
-      jsonContent = jsonMatch[1].trim();
+    if (jsonContent.includes('```')) {
+      const jsonMatch = jsonContent.match(/```(?:json)?\s*([\s\S]*?)\s*```/);
+      if (jsonMatch) {
+        jsonContent = jsonMatch[1].trim();
+      }
     }
     
-    // Remove any leading/trailing text before/after JSON
+    // Find JSON object boundaries
     const jsonStart = jsonContent.indexOf('{');
     const jsonEnd = jsonContent.lastIndexOf('}');
-    if (jsonStart !== -1 && jsonEnd !== -1) {
+    if (jsonStart !== -1 && jsonEnd !== -1 && jsonEnd > jsonStart) {
       jsonContent = jsonContent.substring(jsonStart, jsonEnd + 1);
     }
 
@@ -449,14 +140,40 @@ Die App muss als APK kompilierbar sein und auch als PWA funktionieren.`;
       buildResult = JSON.parse(jsonContent);
     } catch (parseError) {
       console.error('JSON parse error:', parseError);
-      console.error('Content length:', jsonContent.length);
-      console.error('Content preview:', jsonContent.substring(0, 500));
-      console.error('Content end:', jsonContent.substring(jsonContent.length - 500));
+      console.error('Content preview (first 1000 chars):', jsonContent.substring(0, 1000));
       
+      // Try to fix common JSON issues
+      try {
+        // Fix unescaped newlines in strings
+        const fixedContent = jsonContent
+          .replace(/:\s*"([^"]*(?:[^\\]"[^"]*)*?)"/g, (_match: string, content: string) => {
+            const fixed = content.replace(/\n/g, '\\n').replace(/\r/g, '\\r').replace(/\t/g, '\\t');
+            return `: "${fixed}"`;
+          });
+        buildResult = JSON.parse(fixedContent);
+        console.log('Fixed JSON parse successful');
+      } catch (fixError) {
+        console.error('Fixed JSON also failed:', fixError);
+        
+        return new Response(
+          JSON.stringify({ 
+            error: 'Die AI-Antwort konnte nicht verarbeitet werden. Bitte versuche es erneut mit einem einfacheren Code.',
+            details: parseError instanceof Error ? parseError.message : 'JSON Parse Error'
+          }),
+          { 
+            status: 500, 
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+          }
+        );
+      }
+    }
+
+    // Validate the result has required fields
+    if (!buildResult.appName || !buildResult.files || !Array.isArray(buildResult.files)) {
+      console.error('Invalid build result structure:', Object.keys(buildResult));
       return new Response(
         JSON.stringify({ 
-          error: 'Die AI-Antwort konnte nicht verarbeitet werden. Bitte versuche es mit einem einfacheren Code-Beispiel oder reduziere die Komplexität.',
-          details: parseError instanceof Error ? parseError.message : 'JSON Parse Error'
+          error: 'Die generierte App-Struktur ist unvollständig. Bitte versuche es erneut.'
         }),
         { 
           status: 500, 
