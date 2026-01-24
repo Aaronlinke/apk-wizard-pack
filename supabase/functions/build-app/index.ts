@@ -5,14 +5,130 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+// Vite Template - kein AI nötig für einfache Projekte!
+const createViteProject = (code: string, lang: string) => {
+  const appName = `my-${lang}-app`;
+  
+  // Einfache HTML/JS/CSS Extraktion
+  let htmlContent = '';
+  let cssContent = '';
+  let jsContent = '';
+  
+  if (lang === 'html') {
+    // HTML direkt verwenden
+    const styleMatch = code.match(/<style[^>]*>([\s\S]*?)<\/style>/i);
+    const scriptMatch = code.match(/<script[^>]*>([\s\S]*?)<\/script>/i);
+    const bodyMatch = code.match(/<body[^>]*>([\s\S]*?)<\/body>/i);
+    
+    cssContent = styleMatch ? styleMatch[1].trim() : '';
+    jsContent = scriptMatch ? scriptMatch[1].trim() : '';
+    htmlContent = bodyMatch ? bodyMatch[1].replace(/<script[\s\S]*?<\/script>/gi, '').replace(/<style[\s\S]*?<\/style>/gi, '').trim() : code;
+  } else if (lang === 'css') {
+    cssContent = code;
+    htmlContent = '<div class="app">CSS Styles angewendet</div>';
+  } else if (lang === 'javascript' || lang === 'typescript') {
+    jsContent = code;
+    htmlContent = '<div id="output"></div>';
+  } else {
+    // Python, Java etc. - zeige als Code-Display
+    htmlContent = `<pre><code>${code.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</code></pre>`;
+  }
+
+  const files = [
+    {
+      name: 'package.json',
+      content: JSON.stringify({
+        name: appName,
+        version: '1.0.0',
+        type: 'module',
+        scripts: {
+          dev: 'vite',
+          build: 'vite build',
+          preview: 'vite preview'
+        },
+        devDependencies: {
+          vite: '^5.0.0'
+        }
+      }, null, 2),
+      type: 'json'
+    },
+    {
+      name: 'vite.config.js',
+      content: `export default { server: { open: true } }`,
+      type: 'javascript'
+    },
+    {
+      name: 'index.html',
+      content: `<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>${appName}</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  ${htmlContent}
+  <script type="module" src="/main.js"></script>
+</body>
+</html>`,
+      type: 'html'
+    },
+    {
+      name: 'style.css',
+      content: `* { margin: 0; padding: 0; box-sizing: border-box; }
+body { 
+  font-family: system-ui, sans-serif; 
+  min-height: 100vh;
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  color: #fff;
+  padding: 2rem;
+}
+.app { max-width: 800px; margin: 0 auto; }
+pre { background: #0d1117; padding: 1rem; border-radius: 8px; overflow-x: auto; }
+code { font-family: 'Fira Code', monospace; }
+${cssContent}`,
+      type: 'css'
+    },
+    {
+      name: 'main.js',
+      content: `// Dein Code
+${jsContent || '// Keine JavaScript-Logik gefunden'}
+
+console.log('App gestartet!');`,
+      type: 'javascript'
+    }
+  ];
+
+  return {
+    appName,
+    description: `Vite-Projekt aus ${lang.toUpperCase()} Code`,
+    files,
+    buildInstructions: `## Schnellstart
+
+\`\`\`bash
+npm install
+npm run dev
+\`\`\`
+
+## Build für Produktion
+\`\`\`bash
+npm run build
+\`\`\`
+
+Die fertigen Dateien sind dann im \`dist\` Ordner.`,
+    packageJson: JSON.parse(files[0].content)
+  };
+};
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    const { code, language } = await req.json();
-    console.log('Building app from code:', { language, codeLength: code?.length });
+    const { code, language, useAI } = await req.json();
+    console.log('Building app:', { language, codeLength: code?.length, useAI });
 
     if (!code || !language) {
       return new Response(
@@ -21,62 +137,34 @@ serve(async (req) => {
       );
     }
 
-    const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
-    if (!LOVABLE_API_KEY) {
-      throw new Error('LOVABLE_API_KEY nicht konfiguriert');
+    // SCHNELL: Ohne AI - direktes Template
+    if (!useAI) {
+      const result = createViteProject(code, language);
+      console.log('Quick build done:', result.appName);
+      return new Response(
+        JSON.stringify(result),
+        { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
 
-    // Simplified, focused system prompt for reliable JSON output
-    const systemPrompt = `Du bist ein Code-zu-Web-App-Konverter. Wandle den gegebenen Code in ein vollständiges Vite + React + TypeScript Projekt um.
+    // MIT AI: Nur wenn explizit gewünscht
+    const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
+    if (!LOVABLE_API_KEY) {
+      // Fallback auf Template
+      const result = createViteProject(code, language);
+      return new Response(
+        JSON.stringify(result),
+        { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
 
-WICHTIG: Antworte NUR mit einem JSON-Objekt, KEIN Text davor oder danach!
-
-Das JSON muss exakt dieses Format haben:
-{
-  "appName": "app-name-kebab-case",
-  "description": "Kurze Beschreibung der App",
-  "files": [
-    {"name": "package.json", "content": "...", "type": "json"},
-    {"name": "vite.config.ts", "content": "...", "type": "typescript"},
-    {"name": "tsconfig.json", "content": "...", "type": "json"},
-    {"name": "index.html", "content": "...", "type": "html"},
-    {"name": "src/main.tsx", "content": "...", "type": "typescript"},
-    {"name": "src/App.tsx", "content": "...", "type": "typescript"},
-    {"name": "src/index.css", "content": "...", "type": "css"},
-    {"name": "tailwind.config.js", "content": "...", "type": "javascript"},
-    {"name": "postcss.config.js", "content": "...", "type": "javascript"}
-  ],
-  "buildInstructions": "Markdown Build-Anleitung",
-  "packageJson": { "name": "...", "version": "1.0.0", ... }
-}
-
-PFLICHT-DATEIEN:
-1. package.json - mit react, react-dom, vite, typescript, tailwindcss
-2. vite.config.ts - Vite + React Plugin
-3. tsconfig.json - TypeScript Config
-4. index.html - Root HTML mit <div id="root">
-5. src/main.tsx - React Entry Point
-6. src/App.tsx - Hauptkomponente mit dem umgewandelten Code
-7. src/index.css - Tailwind CSS Imports + Styles
-8. tailwind.config.js - Tailwind Konfiguration
-9. postcss.config.js - PostCSS für Tailwind
-
-REGELN:
-- Wandle den User-Code intelligent in React/TypeScript um
-- Nutze Tailwind CSS für modernes Styling
-- Füge sinnvolle UI-Verbesserungen hinzu
-- Der Code muss FEHLER-FREI und lauffähig sein
-- Escape alle Strings korrekt für JSON (\\n, \\", etc.)`;
-
-    const userPrompt = `Sprache: ${language}
+    // Kurzer, effizienter Prompt
+    const prompt = `Wandle diesen ${language} Code in eine moderne Web-App um. Gib NUR JSON zurück:
+{"appName":"name","description":"text","files":[{"name":"index.html","content":"...","type":"html"},{"name":"style.css","content":"...","type":"css"},{"name":"main.js","content":"...","type":"javascript"}],"buildInstructions":"..."}
 
 Code:
-${code}
+${code.substring(0, 2000)}`;
 
-Erstelle ein vollständiges Vite + React + TypeScript Projekt. Antworte NUR mit dem JSON-Objekt!`;
-
-    console.log('Calling AI to analyze code...');
-    
     const aiResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -84,127 +172,64 @@ Erstelle ein vollständiges Vite + React + TypeScript Projekt. Antworte NUR mit 
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'google/gemini-2.5-flash',
-        messages: [
-          { role: 'system', content: systemPrompt },
-          { role: 'user', content: userPrompt }
-        ],
-        max_tokens: 8000,
+        model: 'google/gemini-2.5-flash-lite', // Schnellstes & günstigstes Modell!
+        messages: [{ role: 'user', content: prompt }],
+        max_tokens: 3000, // Weniger Tokens = schneller & billiger
       }),
     });
 
     if (!aiResponse.ok) {
-      const errorText = await aiResponse.text();
-      console.error('AI API error:', aiResponse.status, errorText);
-      
-      if (aiResponse.status === 429) {
+      if (aiResponse.status === 429 || aiResponse.status === 402) {
+        // Bei Rate-Limit: Fallback auf Template
+        const result = createViteProject(code, language);
         return new Response(
-          JSON.stringify({ error: 'Rate-Limit erreicht. Bitte versuche es in ein paar Minuten erneut.' }),
-          { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          JSON.stringify(result),
+          { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
       }
-      
-      throw new Error(`AI API error: ${aiResponse.status}`);
+      throw new Error(`AI error: ${aiResponse.status}`);
     }
 
     const aiData = await aiResponse.json();
-    console.log('AI response received');
+    const content = aiData.choices?.[0]?.message?.content || '';
     
-    const content = aiData.choices?.[0]?.message?.content;
-    if (!content) {
-      throw new Error('Keine Antwort von AI erhalten');
-    }
-
-    console.log('Raw AI content length:', content.length);
-
-    // Extract JSON from response
+    // JSON extrahieren
     let jsonContent = content.trim();
-    
-    // Remove markdown code blocks if present
     if (jsonContent.includes('```')) {
-      const jsonMatch = jsonContent.match(/```(?:json)?\s*([\s\S]*?)\s*```/);
-      if (jsonMatch) {
-        jsonContent = jsonMatch[1].trim();
-      }
+      const match = jsonContent.match(/```(?:json)?\s*([\s\S]*?)\s*```/);
+      if (match) jsonContent = match[1].trim();
     }
     
-    // Find JSON object boundaries
-    const jsonStart = jsonContent.indexOf('{');
-    const jsonEnd = jsonContent.lastIndexOf('}');
-    if (jsonStart !== -1 && jsonEnd !== -1 && jsonEnd > jsonStart) {
-      jsonContent = jsonContent.substring(jsonStart, jsonEnd + 1);
+    const start = jsonContent.indexOf('{');
+    const end = jsonContent.lastIndexOf('}');
+    if (start !== -1 && end > start) {
+      jsonContent = jsonContent.substring(start, end + 1);
     }
 
-    let buildResult;
     try {
-      buildResult = JSON.parse(jsonContent);
-    } catch (parseError) {
-      console.error('JSON parse error:', parseError);
-      console.error('Content preview (first 1000 chars):', jsonContent.substring(0, 1000));
-      
-      // Try to fix common JSON issues
-      try {
-        // Fix unescaped newlines in strings
-        const fixedContent = jsonContent
-          .replace(/:\s*"([^"]*(?:[^\\]"[^"]*)*?)"/g, (_match: string, content: string) => {
-            const fixed = content.replace(/\n/g, '\\n').replace(/\r/g, '\\r').replace(/\t/g, '\\t');
-            return `: "${fixed}"`;
-          });
-        buildResult = JSON.parse(fixedContent);
-        console.log('Fixed JSON parse successful');
-      } catch (fixError) {
-        console.error('Fixed JSON also failed:', fixError);
-        
+      const result = JSON.parse(jsonContent);
+      if (result.appName && result.files) {
         return new Response(
-          JSON.stringify({ 
-            error: 'Die AI-Antwort konnte nicht verarbeitet werden. Bitte versuche es erneut mit einem einfacheren Code.',
-            details: parseError instanceof Error ? parseError.message : 'JSON Parse Error'
-          }),
-          { 
-            status: 500, 
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-          }
+          JSON.stringify(result),
+          { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
       }
+    } catch {
+      // JSON Parse fehlgeschlagen - Fallback
     }
 
-    // Validate the result has required fields
-    if (!buildResult.appName || !buildResult.files || !Array.isArray(buildResult.files)) {
-      console.error('Invalid build result structure:', Object.keys(buildResult));
-      return new Response(
-        JSON.stringify({ 
-          error: 'Die generierte App-Struktur ist unvollständig. Bitte versuche es erneut.'
-        }),
-        { 
-          status: 500, 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-        }
-      );
-    }
-
-    console.log('Build result:', { 
-      appName: buildResult.appName, 
-      filesCount: buildResult.files?.length 
-    });
-
+    // Fallback auf Template
+    const result = createViteProject(code, language);
     return new Response(
-      JSON.stringify(buildResult),
-      { 
-        status: 200, 
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-      }
+      JSON.stringify(result),
+      { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
 
   } catch (error) {
-    console.error('Error in build-app function:', error);
+    console.error('Build error:', error);
     return new Response(
-      JSON.stringify({ 
-        error: error instanceof Error ? error.message : 'Unbekannter Fehler beim App-Build'
-      }),
-      { 
-        status: 500, 
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-      }
+      JSON.stringify({ error: error instanceof Error ? error.message : 'Fehler beim Build' }),
+      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   }
 });

@@ -62,35 +62,33 @@ export const CodeEditor = ({ onBuild }: CodeEditorProps) => {
   const [language, setLanguage] = useState("html");
   const [isBuilding, setIsBuilding] = useState(false);
 
-  const handleBuild = async () => {
+  const handleBuild = async (withAI = false) => {
     if (!code.trim()) {
       toast.error("Bitte gib Code ein");
       return;
     }
 
     setIsBuilding(true);
-    toast.loading("Analysiere Code und generiere App...");
+    toast.loading(withAI ? "AI generiert App..." : "Erstelle Projekt...");
 
     try {
       const { data, error } = await import("@/integrations/supabase/client").then(
         (m) => m.supabase.functions.invoke("build-app", {
-          body: { code, language }
+          body: { code, language, useAI: withAI }
         })
       );
 
       if (error) throw error;
       
       toast.dismiss();
-      toast.success("App erfolgreich generiert!");
+      toast.success("Projekt erstellt!");
       
-      // Save to history
       saveProjectToHistory(data as BuildResult, language);
-      
       onBuild(data as BuildResult);
     } catch (error: any) {
       console.error("Build error:", error);
       toast.dismiss();
-      toast.error(error.message || "Fehler beim Generieren der App");
+      toast.error(error.message || "Fehler");
     } finally {
       setIsBuilding(false);
     }
@@ -213,45 +211,44 @@ export const CodeEditor = ({ onBuild }: CodeEditorProps) => {
             </div>
           )}
 
-          <Button
-            onClick={handleBuild}
-            disabled={isBuilding || !code.trim()}
-            className="w-full h-12 mt-6 bg-gradient-to-r from-primary to-secondary hover:opacity-90 transition-opacity font-semibold text-background"
-          >
-            {isBuilding ? (
-              <>
+          <div className="flex gap-3 mt-6">
+            <Button
+              onClick={() => handleBuild(false)}
+              disabled={isBuilding || !code.trim()}
+              className="flex-1 h-12 bg-gradient-to-r from-green-600 to-green-500 hover:opacity-90 font-semibold"
+            >
+              {isBuilding ? (
                 <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                Generiere App...
-              </>
-            ) : (
-              <>
+              ) : (
                 <Rocket className="mr-2 h-5 w-5" />
-                App generieren
-              </>
-            )}
-          </Button>
+              )}
+              Schnell erstellen (kostenlos)
+            </Button>
+            <Button
+              onClick={() => handleBuild(true)}
+              disabled={isBuilding || !code.trim()}
+              variant="outline"
+              className="h-12 border-primary/30 hover:bg-primary/10"
+            >
+              <Sparkles className="mr-2 h-4 w-4" />
+              Mit AI
+            </Button>
+          </div>
 
           <div className="mt-6 pt-6 border-t border-primary/10">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs text-muted-foreground">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs text-muted-foreground">
               <div className="flex items-start gap-2">
-                <div className="text-primary">✓</div>
+                <div className="text-green-500">⚡</div>
                 <div>
-                  <strong className="text-foreground">Vollständige App</strong>
-                  <p>Alle nötigen Dateien werden generiert</p>
+                  <strong className="text-foreground">Schnell = Sofort</strong>
+                  <p>Direktes Vite-Projekt, keine AI, kostenlos</p>
                 </div>
               </div>
               <div className="flex items-start gap-2">
-                <div className="text-primary">✓</div>
+                <div className="text-primary">✨</div>
                 <div>
-                  <strong className="text-foreground">Mobile-Ready</strong>
-                  <p>Mit Capacitor für iOS & Android</p>
-                </div>
-              </div>
-              <div className="flex items-start gap-2">
-                <div className="text-primary">✓</div>
-                <div>
-                  <strong className="text-foreground">Build-Anleitung</strong>
-                  <p>Schritt-für-Schritt Dokumentation</p>
+                  <strong className="text-foreground">Mit AI = Smarter</strong>
+                  <p>AI verbessert & optimiert (kostet Credits)</p>
                 </div>
               </div>
             </div>
