@@ -57,6 +57,79 @@ greet('World');`,
 greet("World")`,
 };
 
+// Lokale Projekt-Generierung ohne Backend
+function createLocalProject(code: string, language: string): BuildResult {
+  const timestamp = Date.now();
+  const appName = `app-${timestamp}`;
+  
+  // HTML/CSS/JS extrahieren
+  const htmlMatch = code.match(/<html[\s\S]*<\/html>/i) || code.match(/<body[\s\S]*<\/body>/i) || code.match(/<[^>]+>[\s\S]*<\/[^>]+>/);
+  const cssMatch = code.match(/<style[^>]*>([\s\S]*?)<\/style>/i);
+  const jsMatch = code.match(/<script[^>]*>([\s\S]*?)<\/script>/i);
+  
+  let htmlContent = htmlMatch ? htmlMatch[0] : '';
+  let cssContent = cssMatch ? cssMatch[1] : '';
+  let jsContent = jsMatch ? jsMatch[1] : '';
+  
+  // Wenn kein HTML gefunden, basierend auf Sprache erstellen
+  if (!htmlContent) {
+    if (language === 'html') {
+      htmlContent = code;
+    } else if (language === 'javascript' || language === 'typescript') {
+      jsContent = code;
+      htmlContent = '<div id="app"></div>';
+    } else if (language === 'css') {
+      cssContent = code;
+      htmlContent = '<div class="container"><h1>Styled Content</h1></div>';
+    } else {
+      htmlContent = `<pre><code>${code.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</code></pre>`;
+    }
+  }
+  
+  return {
+    appName,
+    description: `Generiert aus ${language.toUpperCase()} Code`,
+    files: [
+      {
+        name: "index.html",
+        content: `<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>${appName}</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  ${htmlContent}
+  <script src="main.js"></script>
+</body>
+</html>`,
+        type: "text/html"
+      },
+      {
+        name: "style.css",
+        content: cssContent || `* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: system-ui, sans-serif; padding: 2rem; background: #0f0f0f; color: #fff; }
+h1 { margin-bottom: 1rem; }
+button { padding: 0.5rem 1rem; cursor: pointer; }`,
+        type: "text/css"
+      },
+      {
+        name: "main.js",
+        content: jsContent || `console.log("App gestartet");`,
+        type: "application/javascript"
+      }
+    ],
+    buildInstructions: "Öffne index.html im Browser oder starte mit einem lokalen Server.",
+    packageJson: {
+      name: appName,
+      version: "1.0.0",
+      scripts: { dev: "npx serve ." }
+    }
+  };
+}
+
 export const CodeEditor = ({ onBuild }: CodeEditorProps) => {
   const [code, setCode] = useState("");
   const [language, setLanguage] = useState("html");
@@ -69,26 +142,32 @@ export const CodeEditor = ({ onBuild }: CodeEditorProps) => {
     }
 
     setIsBuilding(true);
-    toast.loading(withAI ? "AI generiert App..." : "Erstelle Projekt...");
 
     try {
-      const { data, error } = await import("@/integrations/supabase/client").then(
-        (m) => m.supabase.functions.invoke("build-app", {
-          body: { code, language, useAI: withAI }
-        })
-      );
-
-      if (error) throw error;
-      
-      toast.dismiss();
-      toast.success("Projekt erstellt!");
-      
-      saveProjectToHistory(data as BuildResult, language);
-      onBuild(data as BuildResult);
+      if (withAI) {
+        // Mit AI = Backend-Aufruf
+        toast.loading("AI generiert App...");
+        const { data, error } = await import("@/integrations/supabase/client").then(
+          (m) => m.supabase.functions.invoke("build-app", {
+            body: { code, language, useAI: true }
+          })
+        );
+        if (error) throw error;
+        toast.dismiss();
+        toast.success("AI-Projekt erstellt!");
+        saveProjectToHistory(data as BuildResult, language);
+        onBuild(data as BuildResult);
+      } else {
+        // Schnell = Komplett lokal, kein Backend
+        const result = createLocalProject(code, language);
+        toast.success("Projekt erstellt! ⚡");
+        saveProjectToHistory(result, language);
+        onBuild(result);
+      }
     } catch (error: any) {
       console.error("Build error:", error);
       toast.dismiss();
-      toast.error(error.message || "Fehler");
+      toast.error(error.message || "Fehler beim Erstellen");
     } finally {
       setIsBuilding(false);
     }
