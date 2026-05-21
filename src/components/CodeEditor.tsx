@@ -5,6 +5,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Code2, Loader2, Rocket, Upload, Sparkles } from "lucide-react";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 import { FileUpload } from "./FileUpload";
 import { TemplateSelector } from "./TemplateSelector";
 import { CodePreview } from "./CodePreview";
@@ -145,13 +146,10 @@ export const CodeEditor = ({ onBuild }: CodeEditorProps) => {
 
     try {
       if (withAI) {
-        // Mit AI = Backend-Aufruf
         toast.loading("AI generiert App...");
-        const { data, error } = await import("@/integrations/supabase/client").then(
-          (m) => m.supabase.functions.invoke("build-app", {
-            body: { code, language, useAI: true }
-          })
-        );
+        const { data, error } = await supabase.functions.invoke("build-app", {
+          body: { code, language, useAI: true }
+        });
         if (error) throw error;
         toast.dismiss();
         toast.success("AI-Projekt erstellt!");
