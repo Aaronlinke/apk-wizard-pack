@@ -146,13 +146,10 @@ export const CodeEditor = ({ onBuild }: CodeEditorProps) => {
 
     try {
       if (withAI) {
-        // Mit AI = Backend-Aufruf
         toast.loading("AI generiert App...");
-        const { data, error } = await import("@/integrations/supabase/client").then(
-          (m) => m.supabase.functions.invoke("build-app", {
-            body: { code, language, useAI: true }
-          })
-        );
+        const { data, error } = await supabase.functions.invoke("build-app", {
+          body: { code, language, useAI: true }
+        });
         if (error) throw error;
         toast.dismiss();
         toast.success("AI-Projekt erstellt!");
