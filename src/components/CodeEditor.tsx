@@ -5,6 +5,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Code2, Loader2, Rocket, Upload, Sparkles } from "lucide-react";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 import { FileUpload } from "./FileUpload";
 import { TemplateSelector } from "./TemplateSelector";
 import { CodePreview } from "./CodePreview";
