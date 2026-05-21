@@ -9,6 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { FileUpload } from "./FileUpload";
 import { TemplateSelector } from "./TemplateSelector";
 import { CodePreview } from "./CodePreview";
+import { LivePreview } from "./LivePreview";
 import { CodeValidator } from "./CodeValidator";
 import { saveProjectToHistory } from "./ProjectHistory";
 
@@ -32,9 +33,10 @@ const languages = [
   { value: "html", label: "HTML" },
   { value: "javascript", label: "JavaScript" },
   { value: "typescript", label: "TypeScript" },
+  { value: "css", label: "CSS" },
   { value: "python", label: "Python" },
   { value: "java", label: "Java" },
-  { value: "css", label: "CSS" },
+  { value: "cpp", label: "C++" },
   { value: "json", label: "JSON" },
   { value: "bash", label: "Bash" },
 ];
@@ -284,6 +286,7 @@ export const CodeEditor = ({ onBuild }: CodeEditorProps) => {
           {code.trim() && (
             <div className="mt-6 space-y-4">
               <CodeValidator code={code} language={language} />
+              <LivePreview code={code} language={language} />
               <CodePreview code={code} language={language} />
             </div>
           )}
