@@ -11,10 +11,22 @@ serve(async (req) => {
   }
 
   try {
-    const { zipData, appMetadata } = await req.json();
+    const body = await req.json().catch(() => ({}));
+    const { zipData, appMetadata } = body ?? {};
 
     if (!zipData) {
-      throw new Error('No ZIP data provided');
+      console.warn('compile-apk: no zipData, returning instructions-only response');
+      return new Response(
+        JSON.stringify({
+          success: true,
+          status: 'instructions_only',
+          fallback: true,
+          message: 'Keine ZIP übermittelt – zeige nur die Anleitung.',
+          instructions: `# APK Build Anleitung\n\nLade dein Projekt als ZIP herunter und folge der Anleitung in der README, um eine APK mit Capacitor zu bauen.`,
+          phases: [],
+        }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
 
     console.log('Starting APK compilation process...');
