@@ -23,40 +23,39 @@ const Index = () => {
         <div className="absolute bottom-1/4 -right-48 w-96 h-96 bg-secondary/5 rounded-full blur-3xl animate-pulse" style={{ animationDelay: "1s" }} />
       </div>
 
-      <div className="relative z-10 container mx-auto px-4 py-12">
+      <div className="relative z-10 container mx-auto px-3 sm:px-4 py-6 sm:py-12">
         {/* Header */}
-        <header className="text-center mb-16">
-          <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-gradient-to-br from-primary/20 to-secondary/20 mb-6 backdrop-blur-xl border border-primary/20">
-            <Code2 className="w-10 h-10 text-primary" />
+        <header className="text-center mb-8 sm:mb-16">
+          <div className="inline-flex items-center justify-center w-14 h-14 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-br from-primary/20 to-secondary/20 mb-3 sm:mb-6 backdrop-blur-xl border border-primary/20">
+            <Code2 className="w-7 h-7 sm:w-10 sm:h-10 text-primary" />
           </div>
-          <h1 className="text-5xl md:text-6xl font-bold mb-4 flex items-center justify-center gap-3">
+          <h1 className="text-3xl sm:text-5xl md:text-6xl font-bold mb-2 sm:mb-4 flex items-center justify-center gap-2 sm:gap-3">
             <span className="bg-gradient-to-r from-primary via-secondary to-primary bg-clip-text text-transparent">
               CodeForge
             </span>
-            <Zap className="w-12 h-12 text-primary animate-pulse" />
+            <Zap className="w-7 h-7 sm:w-12 sm:h-12 text-primary animate-pulse" />
           </h1>
-          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Der intelligenteste Code-zu-App Builder. Von simplen Code-Snippets zu 
-            vollständigen Mobile-Apps mit APK-Export in Sekunden.
+          <p className="text-sm sm:text-xl text-muted-foreground max-w-2xl mx-auto px-2">
+            200+ vorgefertigte Bot-Apps. Von Code-Snippets zu Mobile-Apps in Sekunden.
           </p>
-          <div className="flex gap-4 justify-center mt-6 text-sm text-muted-foreground">
-            <div className="flex items-center gap-2">
-              <CheckCircle2 className="h-4 w-4 text-green-500" />
-              KI-powered
+          <div className="flex flex-wrap gap-2 sm:gap-4 justify-center mt-3 sm:mt-6 text-[11px] sm:text-sm text-muted-foreground">
+            <div className="flex items-center gap-1.5">
+              <CheckCircle2 className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-green-500" />
+              200 Bot-Apps
             </div>
-            <div className="flex items-center gap-2">
-              <CheckCircle2 className="h-4 w-4 text-green-500" />
-              Capacitor Native
+            <div className="flex items-center gap-1.5">
+              <CheckCircle2 className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-green-500" />
+              Live Preview
             </div>
-            <div className="flex items-center gap-2">
-              <CheckCircle2 className="h-4 w-4 text-green-500" />
-              APK-Export
+            <div className="flex items-center gap-1.5">
+              <CheckCircle2 className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-green-500" />
+              Mobile-ready
             </div>
           </div>
         </header>
 
         {/* Main content */}
-        <main className="mb-16">
+        <main className="mb-8 sm:mb-16">
           {!buildResult ? (
             <div className="space-y-8">
               <ProjectHistory onLoadProject={handleBuild} />
