@@ -3,11 +3,12 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Code2, Loader2, Rocket, Upload, Sparkles } from "lucide-react";
+import { Code2, Loader2, Rocket, Upload, Sparkles, Library } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { FileUpload } from "./FileUpload";
 import { TemplateSelector } from "./TemplateSelector";
+import { BotLibrary } from "./BotLibrary";
 import { CodePreview } from "./CodePreview";
 import { LivePreview } from "./LivePreview";
 import { CodeValidator } from "./CodeValidator";
@@ -200,76 +201,74 @@ export const CodeEditor = ({ onBuild }: CodeEditorProps) => {
     <div className="w-full max-w-6xl mx-auto">
       <div className="relative">
         <div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-secondary/20 blur-3xl rounded-full" />
-        <div className="relative backdrop-blur-xl bg-card/40 border border-primary/20 rounded-2xl p-8 shadow-[0_8px_32px_rgba(0,0,0,0.4)]">
-          <div className="flex items-center gap-3 mb-6">
-            <div className="p-3 rounded-xl bg-gradient-to-br from-primary/20 to-secondary/20">
-              <Code2 className="w-6 h-6 text-primary" />
+        <div className="relative backdrop-blur-xl bg-card/40 border border-primary/20 rounded-2xl p-3 sm:p-6 md:p-8 shadow-[0_8px_32px_rgba(0,0,0,0.4)]">
+          <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6">
+            <div className="p-2 sm:p-3 rounded-xl bg-gradient-to-br from-primary/20 to-secondary/20">
+              <Code2 className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
             </div>
-            <div className="flex-1">
-              <h2 className="text-2xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+            <div className="flex-1 min-w-0">
+              <h2 className="text-lg sm:text-2xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
                 Code Editor
               </h2>
-              <p className="text-muted-foreground text-sm">
-                Gib deinen Code ein und lass die AI eine App daraus erstellen
+              <p className="text-muted-foreground text-xs sm:text-sm truncate">
+                Code eingeben oder Vorlage wählen
               </p>
             </div>
           </div>
 
-          <Tabs defaultValue="code" className="space-y-4">
-            <TabsList className="grid w-full grid-cols-3 bg-background/50">
-              <TabsTrigger value="code" className="data-[state=active]:bg-primary/20">
-                <Code2 className="w-4 h-4 mr-2" />
-                Code
+          <Tabs defaultValue="library" className="space-y-3 sm:space-y-4">
+            <TabsList className="grid w-full grid-cols-4 bg-background/50 h-auto">
+              <TabsTrigger value="library" className="data-[state=active]:bg-primary/20 px-1 py-2 text-xs sm:text-sm">
+                <Library className="w-4 h-4 sm:mr-1.5" />
+                <span className="hidden sm:inline">Bots</span>
               </TabsTrigger>
-              <TabsTrigger value="template" className="data-[state=active]:bg-primary/20">
-                <Sparkles className="w-4 h-4 mr-2" />
-                Vorlagen
+              <TabsTrigger value="code" className="data-[state=active]:bg-primary/20 px-1 py-2 text-xs sm:text-sm">
+                <Code2 className="w-4 h-4 sm:mr-1.5" />
+                <span className="hidden sm:inline">Code</span>
               </TabsTrigger>
-              <TabsTrigger value="upload" className="data-[state=active]:bg-primary/20">
-                <Upload className="w-4 h-4 mr-2" />
-                Upload
+              <TabsTrigger value="template" className="data-[state=active]:bg-primary/20 px-1 py-2 text-xs sm:text-sm">
+                <Sparkles className="w-4 h-4 sm:mr-1.5" />
+                <span className="hidden sm:inline">Demo</span>
+              </TabsTrigger>
+              <TabsTrigger value="upload" className="data-[state=active]:bg-primary/20 px-1 py-2 text-xs sm:text-sm">
+                <Upload className="w-4 h-4 sm:mr-1.5" />
+                <span className="hidden sm:inline">Upload</span>
               </TabsTrigger>
             </TabsList>
 
-            <TabsContent value="code" className="space-y-4">
-              <div className="flex gap-4">
-                <div className="flex-1">
-                  <label className="text-sm font-medium text-foreground mb-2 block">
-                    Programmiersprache
-                  </label>
+            <TabsContent value="library">
+              <BotLibrary onSelect={handleTemplateSelect} />
+            </TabsContent>
+
+            <TabsContent value="code" className="space-y-3">
+              <div className="flex gap-2 sm:gap-4">
+                <div className="flex-1 min-w-0">
+                  <label className="text-xs sm:text-sm font-medium mb-1.5 block">Sprache</label>
                   <Select value={language} onValueChange={setLanguage}>
-                    <SelectTrigger className="bg-background/50 border-primary/30">
+                    <SelectTrigger className="bg-background/50 border-primary/30 h-9">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
                       {languages.map((lang) => (
-                        <SelectItem key={lang.value} value={lang.value}>
-                          {lang.label}
-                        </SelectItem>
+                        <SelectItem key={lang.value} value={lang.value}>{lang.label}</SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
                 </div>
                 <div className="flex items-end">
-                  <Button
-                    onClick={loadExample}
-                    variant="outline"
-                    className="border-primary/30 hover:border-primary hover:bg-primary/10"
-                  >
-                    Beispiel laden
+                  <Button onClick={loadExample} variant="outline" size="sm" className="border-primary/30 h-9">
+                    Beispiel
                   </Button>
                 </div>
               </div>
 
               <div>
-                <label className="text-sm font-medium text-foreground mb-2 block">
-                  Dein Code
-                </label>
+                <label className="text-xs sm:text-sm font-medium mb-1.5 block">Dein Code</label>
                 <Textarea
                   value={code}
                   onChange={(e) => setCode(e.target.value)}
-                  placeholder={`// Gib hier deinen ${language.toUpperCase()}-Code ein...\n// Die AI wird daraus eine vollständige App erstellen`}
-                  className="code-font min-h-[400px] bg-background/50 border-primary/30 focus:border-primary font-mono text-sm"
+                  placeholder={`// ${language.toUpperCase()}-Code hier...`}
+                  className="code-font min-h-[240px] sm:min-h-[400px] bg-background/50 border-primary/30 font-mono text-xs sm:text-sm"
                 />
               </div>
             </TabsContent>
@@ -284,54 +283,31 @@ export const CodeEditor = ({ onBuild }: CodeEditorProps) => {
           </Tabs>
 
           {code.trim() && (
-            <div className="mt-6 space-y-4">
+            <div className="mt-4 sm:mt-6 space-y-3 sm:space-y-4">
               <CodeValidator code={code} language={language} />
               <LivePreview code={code} language={language} />
               <CodePreview code={code} language={language} />
             </div>
           )}
 
-          <div className="flex gap-3 mt-6">
+          <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 mt-4 sm:mt-6">
             <Button
               onClick={() => handleBuild(false)}
               disabled={isBuilding || !code.trim()}
-              className="flex-1 h-12 bg-gradient-to-r from-green-600 to-green-500 hover:opacity-90 font-semibold"
+              className="flex-1 h-11 sm:h-12 bg-gradient-to-r from-green-600 to-green-500 hover:opacity-90 font-semibold text-sm"
             >
-              {isBuilding ? (
-                <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-              ) : (
-                <Rocket className="mr-2 h-5 w-5" />
-              )}
-              Schnell erstellen (kostenlos)
+              {isBuilding ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Rocket className="mr-2 h-4 w-4" />}
+              Schnell erstellen
             </Button>
             <Button
               onClick={() => handleBuild(true)}
               disabled={isBuilding || !code.trim()}
               variant="outline"
-              className="h-12 border-primary/30 hover:bg-primary/10"
+              className="h-11 sm:h-12 border-primary/30 hover:bg-primary/10 text-sm"
             >
               <Sparkles className="mr-2 h-4 w-4" />
               Mit AI
             </Button>
-          </div>
-
-          <div className="mt-6 pt-6 border-t border-primary/10">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs text-muted-foreground">
-              <div className="flex items-start gap-2">
-                <div className="text-green-500">⚡</div>
-                <div>
-                  <strong className="text-foreground">Schnell = Sofort</strong>
-                  <p>Direktes Vite-Projekt, keine AI, kostenlos</p>
-                </div>
-              </div>
-              <div className="flex items-start gap-2">
-                <div className="text-primary">✨</div>
-                <div>
-                  <strong className="text-foreground">Mit AI = Smarter</strong>
-                  <p>AI verbessert & optimiert (kostet Credits)</p>
-                </div>
-              </div>
-            </div>
           </div>
         </div>
       </div>
