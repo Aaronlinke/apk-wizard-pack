@@ -13,6 +13,8 @@ import { CodePreview } from "./CodePreview";
 import { LivePreview } from "./LivePreview";
 import { CodeValidator } from "./CodeValidator";
 import { saveProjectToHistory } from "./ProjectHistory";
+import { VoiceInput } from "./VoiceInput";
+import { KeyboardShortcuts } from "./KeyboardShortcuts";
 
 interface CodeEditorProps {
   onBuild: (result: BuildResult) => void;
@@ -213,6 +215,10 @@ export const CodeEditor = ({ onBuild }: CodeEditorProps) => {
               <p className="text-muted-foreground text-xs sm:text-sm truncate">
                 Code eingeben oder Vorlage wählen
               </p>
+            </div>
+            <div className="flex items-center gap-1">
+              <VoiceInput onTranscript={(t) => setCode((c) => (c ? c + "\n" : "") + t)} />
+              <KeyboardShortcuts />
             </div>
           </div>
 
