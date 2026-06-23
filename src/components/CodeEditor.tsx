@@ -15,6 +15,7 @@ import { CodeValidator } from "./CodeValidator";
 import { saveProjectToHistory } from "./ProjectHistory";
 import { VoiceInput } from "./VoiceInput";
 import { KeyboardShortcuts } from "./KeyboardShortcuts";
+import { WindowsExport } from "./WindowsExport";
 
 interface CodeEditorProps {
   onBuild: (result: BuildResult) => void;
