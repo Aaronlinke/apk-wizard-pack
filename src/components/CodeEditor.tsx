@@ -16,6 +16,7 @@ import { saveProjectToHistory } from "./ProjectHistory";
 import { VoiceInput } from "./VoiceInput";
 import { KeyboardShortcuts } from "./KeyboardShortcuts";
 import { WindowsExport } from "./WindowsExport";
+import { NexusBrain } from "./NexusBrain";
 
 interface CodeEditorProps {
   onBuild: (result: BuildResult) => void;
