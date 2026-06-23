@@ -297,8 +297,7 @@ export const CodeEditor = ({ onBuild }: CodeEditorProps) => {
               <CodePreview code={code} language={language} />
             </div>
           )}
-            </div>
-          )}
+
 
           <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 mt-4 sm:mt-6">
             <Button
