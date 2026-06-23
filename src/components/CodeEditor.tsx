@@ -15,6 +15,7 @@ import { CodeValidator } from "./CodeValidator";
 import { saveProjectToHistory } from "./ProjectHistory";
 import { VoiceInput } from "./VoiceInput";
 import { KeyboardShortcuts } from "./KeyboardShortcuts";
+import { WindowsExport } from "./WindowsExport";
 
 interface CodeEditorProps {
   onBuild: (result: BuildResult) => void;
@@ -292,9 +293,11 @@ export const CodeEditor = ({ onBuild }: CodeEditorProps) => {
             <div className="mt-4 sm:mt-6 space-y-3 sm:space-y-4">
               <CodeValidator code={code} language={language} />
               <LivePreview code={code} language={language} />
+              <WindowsExport code={code} language={language} />
               <CodePreview code={code} language={language} />
             </div>
           )}
+
 
           <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 mt-4 sm:mt-6">
             <Button
