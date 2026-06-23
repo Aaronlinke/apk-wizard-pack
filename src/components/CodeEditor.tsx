@@ -293,7 +293,10 @@ export const CodeEditor = ({ onBuild }: CodeEditorProps) => {
             <div className="mt-4 sm:mt-6 space-y-3 sm:space-y-4">
               <CodeValidator code={code} language={language} />
               <LivePreview code={code} language={language} />
+              <WindowsExport code={code} language={language} />
               <CodePreview code={code} language={language} />
+            </div>
+          )}
             </div>
           )}
 
