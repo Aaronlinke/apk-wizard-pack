@@ -3,7 +3,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Code2, Loader2, Rocket, Upload, Sparkles, Library } from "lucide-react";
+import { Code2, Loader2, Rocket, Upload, Sparkles, Library, Brain } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { FileUpload } from "./FileUpload";
@@ -16,6 +16,7 @@ import { saveProjectToHistory } from "./ProjectHistory";
 import { VoiceInput } from "./VoiceInput";
 import { KeyboardShortcuts } from "./KeyboardShortcuts";
 import { WindowsExport } from "./WindowsExport";
+import { NexusBrain } from "./NexusBrain";
 
 interface CodeEditorProps {
   onBuild: (result: BuildResult) => void;
@@ -224,10 +225,14 @@ export const CodeEditor = ({ onBuild }: CodeEditorProps) => {
           </div>
 
           <Tabs defaultValue="library" className="space-y-3 sm:space-y-4">
-            <TabsList className="grid w-full grid-cols-4 bg-background/50 h-auto">
+            <TabsList className="grid w-full grid-cols-5 bg-background/50 h-auto">
               <TabsTrigger value="library" className="data-[state=active]:bg-primary/20 px-1 py-2 text-xs sm:text-sm">
                 <Library className="w-4 h-4 sm:mr-1.5" />
                 <span className="hidden sm:inline">Bots</span>
+              </TabsTrigger>
+              <TabsTrigger value="brain" className="data-[state=active]:bg-primary/20 px-1 py-2 text-xs sm:text-sm">
+                <Brain className="w-4 h-4 sm:mr-1.5" />
+                <span className="hidden sm:inline">Brain</span>
               </TabsTrigger>
               <TabsTrigger value="code" className="data-[state=active]:bg-primary/20 px-1 py-2 text-xs sm:text-sm">
                 <Code2 className="w-4 h-4 sm:mr-1.5" />
@@ -245,6 +250,10 @@ export const CodeEditor = ({ onBuild }: CodeEditorProps) => {
 
             <TabsContent value="library">
               <BotLibrary onSelect={handleTemplateSelect} />
+            </TabsContent>
+
+            <TabsContent value="brain">
+              <NexusBrain code={code} onUseAsCode={(t) => setCode(t)} />
             </TabsContent>
 
             <TabsContent value="code" className="space-y-3">

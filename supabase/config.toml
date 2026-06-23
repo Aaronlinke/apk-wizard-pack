@@ -5,3 +5,6 @@ verify_jwt = false
 
 [functions.compile-apk]
 verify_jwt = false
+
+[functions.nexus-brain]
+verify_jwt = false
