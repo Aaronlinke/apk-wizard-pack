@@ -225,10 +225,14 @@ export const CodeEditor = ({ onBuild }: CodeEditorProps) => {
           </div>
 
           <Tabs defaultValue="library" className="space-y-3 sm:space-y-4">
-            <TabsList className="grid w-full grid-cols-4 bg-background/50 h-auto">
+            <TabsList className="grid w-full grid-cols-5 bg-background/50 h-auto">
               <TabsTrigger value="library" className="data-[state=active]:bg-primary/20 px-1 py-2 text-xs sm:text-sm">
                 <Library className="w-4 h-4 sm:mr-1.5" />
                 <span className="hidden sm:inline">Bots</span>
+              </TabsTrigger>
+              <TabsTrigger value="brain" className="data-[state=active]:bg-primary/20 px-1 py-2 text-xs sm:text-sm">
+                <Brain className="w-4 h-4 sm:mr-1.5" />
+                <span className="hidden sm:inline">Brain</span>
               </TabsTrigger>
               <TabsTrigger value="code" className="data-[state=active]:bg-primary/20 px-1 py-2 text-xs sm:text-sm">
                 <Code2 className="w-4 h-4 sm:mr-1.5" />
@@ -246,6 +250,10 @@ export const CodeEditor = ({ onBuild }: CodeEditorProps) => {
 
             <TabsContent value="library">
               <BotLibrary onSelect={handleTemplateSelect} />
+            </TabsContent>
+
+            <TabsContent value="brain">
+              <NexusBrain code={code} onUseAsCode={(t) => setCode(t)} />
             </TabsContent>
 
             <TabsContent value="code" className="space-y-3">
