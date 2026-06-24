@@ -490,4 +490,4 @@ export const botTemplates: BotTemplate[] = [
 
 ];
 
-export const categories = ["Alle", "Bots", "KI-Bots", "Rechner", "Konverter", "Generatoren", "Spiele", "Tools"];
+export const categories = ["Alle", "Smart-Bots", "Apps", "Bots", "Rechner", "Konverter", "Generatoren", "Spiele", "Tools"];
