@@ -81,6 +81,31 @@ const builders = {
      function ans(j){if(j===qs[i].c)s++;i++;document.getElementById('score').innerText='Score: '+s;show()}show();`),
 };
 
+// SMART CHATBOT: Keyword-Erkennung + Kontext + große Antwortbank
+// Erkennt Schlüsselwörter und antwortet themenbezogen
+const smartBot = (name: string, intro: string, knowledge: Record<string, string[]>, fallback: string[]) => wrap(name,
+  `<div id="log" class="out" style="height:340px;overflow:auto"></div>
+   <div class="row"><input id="msg" placeholder="Frag mich etwas..."><button onclick="send()">Senden</button></div>
+   <div style="margin-top:.5rem;font-size:.75rem;opacity:.6">Smart Bot · erkennt Schlüsselwörter · Memory aktiv</div>`,
+  `const kb=${JSON.stringify(knowledge)};const fb=${JSON.stringify(fallback)};
+   const log=document.getElementById('log');const mem=[];
+   function add(who,t,c){log.innerHTML+='<div style="margin:.3rem 0;padding:.5rem;background:rgba(0,0,0,'+(who==='Du'?'.5':'.2')+');border-radius:8px;border-left:3px solid '+(c||'#a855f7')+'"><b>'+who+':</b> '+t+'</div>';log.scrollTop=log.scrollHeight}
+   add('${name}','${intro}','#3b82f6');
+   function think(q){
+     const ql=q.toLowerCase();
+     const hits=[];
+     for(const k in kb){if(ql.includes(k))hits.push(...kb[k])}
+     if(hits.length)return hits[Math.floor(Math.random()*hits.length)];
+     if(mem.length>1&&Math.random()<.3)return 'Du hast vorhin "'+mem[mem.length-2]+'" erwähnt - hängt das zusammen?';
+     return fb[Math.floor(Math.random()*fb.length)];
+   }
+   function send(){const i=document.getElementById('msg');const v=i.value.trim();if(!v)return;
+     mem.push(v);add('Du',v);i.value='';
+     setTimeout(()=>{add('${name}',think(v),'#3b82f6')},300+Math.random()*400)}
+   document.getElementById('msg').addEventListener('keypress',e=>{if(e.key==='Enter')send()});`);
+
+
+
 // Hilfs-Arrays
 const moods = ["Hoffnung", "Mut", "Liebe", "Glück", "Erfolg", "Weisheit", "Frieden", "Stärke", "Klarheit", "Freude"];
 const colors = ["Rot", "Blau", "Grün", "Gelb", "Lila", "Orange", "Rosa", "Türkis", "Gold", "Silber"];
