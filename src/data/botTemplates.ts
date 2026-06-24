@@ -308,8 +308,7 @@ export const botTemplates: BotTemplate[] = [
       code: builders.list(t,"Eintrag...",`tool_${i}`) };
   }),
 
-  // === AI / EXPERIMENTE (30) ===
-  })),
+
 
   // === SMART BOTS (50) - mit Keyword-Erkennung & Memory ===
   { id:"smart-doc", name:"Dr. Smart (Symptom-Check)", category:"Smart-Bots", emoji:"🩺", description:"Erkennt Symptome",
