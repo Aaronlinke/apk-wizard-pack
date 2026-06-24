@@ -81,6 +81,31 @@ const builders = {
      function ans(j){if(j===qs[i].c)s++;i++;document.getElementById('score').innerText='Score: '+s;show()}show();`),
 };
 
+// SMART CHATBOT: Keyword-Erkennung + Kontext + große Antwortbank
+// Erkennt Schlüsselwörter und antwortet themenbezogen
+const smartBot = (name: string, intro: string, knowledge: Record<string, string[]>, fallback: string[]) => wrap(name,
+  `<div id="log" class="out" style="height:340px;overflow:auto"></div>
+   <div class="row"><input id="msg" placeholder="Frag mich etwas..."><button onclick="send()">Senden</button></div>
+   <div style="margin-top:.5rem;font-size:.75rem;opacity:.6">Smart Bot · erkennt Schlüsselwörter · Memory aktiv</div>`,
+  `const kb=${JSON.stringify(knowledge)};const fb=${JSON.stringify(fallback)};
+   const log=document.getElementById('log');const mem=[];
+   function add(who,t,c){log.innerHTML+='<div style="margin:.3rem 0;padding:.5rem;background:rgba(0,0,0,'+(who==='Du'?'.5':'.2')+');border-radius:8px;border-left:3px solid '+(c||'#a855f7')+'"><b>'+who+':</b> '+t+'</div>';log.scrollTop=log.scrollHeight}
+   add('${name}','${intro}','#3b82f6');
+   function think(q){
+     const ql=q.toLowerCase();
+     const hits=[];
+     for(const k in kb){if(ql.includes(k))hits.push(...kb[k])}
+     if(hits.length)return hits[Math.floor(Math.random()*hits.length)];
+     if(mem.length>1&&Math.random()<.3)return 'Du hast vorhin "'+mem[mem.length-2]+'" erwähnt - hängt das zusammen?';
+     return fb[Math.floor(Math.random()*fb.length)];
+   }
+   function send(){const i=document.getElementById('msg');const v=i.value.trim();if(!v)return;
+     mem.push(v);add('Du',v);i.value='';
+     setTimeout(()=>{add('${name}',think(v),'#3b82f6')},300+Math.random()*400)}
+   document.getElementById('msg').addEventListener('keypress',e=>{if(e.key==='Enter')send()});`);
+
+
+
 // Hilfs-Arrays
 const moods = ["Hoffnung", "Mut", "Liebe", "Glück", "Erfolg", "Weisheit", "Frieden", "Stärke", "Klarheit", "Freude"];
 const colors = ["Rot", "Blau", "Grün", "Gelb", "Lila", "Orange", "Rosa", "Türkis", "Gold", "Silber"];
@@ -283,14 +308,186 @@ export const botTemplates: BotTemplate[] = [
       code: builders.list(t,"Eintrag...",`tool_${i}`) };
   }),
 
-  // === AI / EXPERIMENTE (30) ===
-  ...Array.from({length:30},(_,i)=>{
-    const names=["Gedichte-Bot","Story-Bot","Code-Tipps","Lifehack-Bot","Tageshoroskop","Wahrsager","Magic 8 Ball","Tarot Karte","Glückskeks","Schimpfwort-Generator (jugendfrei)","Komplimente","Pickup-Lines (lustig)","Outfit-Berater","Frisuren-Tipp","Tattoo-Idee","Geschenkidee","Date-Idee","Filmempfehlung","Serien-Tipp","Buch-Tipp","Game-Tipp","Musik-Tipp","Podcast-Tipp","Wochenend-Idee","Urlaubsziel","Hauptgericht","Dessert","Cocktail","Smoothie","Mocktail"];
-    return { id:`ai-${i}`, name:names[i], category:"KI-Bots", emoji:"🤖", description:"KI-Stil Bot",
-      code: builders.chatbot(names[i], `Ich bin dein ${names[i]}.`,
-        moods.map((m,j)=>`${names[i]} sagt: ${m} und ${colors[j%10]} kombinieren mit ${animals[j%10]} bringt Inspiration!`))
+
+
+  // === SMART BOTS (50) - mit Keyword-Erkennung & Memory ===
+  { id:"smart-doc", name:"Dr. Smart (Symptom-Check)", category:"Smart-Bots", emoji:"🩺", description:"Erkennt Symptome",
+    code: smartBot("Dr. Smart","Hi, ich bin Dr. Smart. Beschreib deine Symptome (KEINE echte Diagnose!).",
+      {kopf:["Kopfschmerzen? Trink mehr Wasser, ruh dich aus. Bei Dauer→Arzt.","Migräne oft durch Stress/Schlafmangel. Dunkler Raum hilft."],
+       bauch:["Bauchschmerzen können Ernährung sein. Tee + Ruhe.","Reizdarm? Ballaststoffe + Stressreduktion."],
+       fieber:["Fieber >38.5°C ernst nehmen. Viel trinken, Ruhe.","Bei Fieber >39°C oder >3 Tage → Arzt!"],
+       husten:["Trockener Husten? Honig + warmer Tee.","Schleim-Husten? Inhalation mit Salzwasser."],
+       müde:["Müdigkeit oft = Schlafmangel/Eisen niedrig. Bluttest?","Chronische Müdigkeit ernst nehmen."]},
+      ["Erzähl mir mehr Details.","Wie lange hast du das schon?","Begleitende Symptome?","Hast du Vorerkrankungen?"]) },
+  { id:"smart-coach", name:"Life Coach Pro", category:"Smart-Bots", emoji:"🎯", description:"Coaching-Fragen",
+    code: smartBot("Coach","Was beschäftigt dich gerade?",
+      {ziel:["Mach dein Ziel SMART: spezifisch, messbar, erreichbar, relevant, terminiert.","Schreib dein Ziel auf. Sichtbar. Täglich.","Was wäre der erste 5-Minuten-Schritt?"],
+       angst:["Angst ist Information. Was sagt sie dir?","Atme 4-7-8: 4s ein, 7s halten, 8s aus.","Schreib deine Sorge auf - sie verliert Macht."],
+       motivation:["Motivation folgt Handlung, nicht andersrum.","Beginn mit 2 Minuten. Nur 2.","Warum willst du das wirklich?"],
+       stress:["Stress-Check: 3 Dinge die du JETZT loslassen kannst?","Box-Breathing: 4-4-4-4 hilft sofort.","Pausen sind nicht Belohnung, sondern Voraussetzung."],
+       beziehung:["Was würdest du sagen wenn nichts schief gehen könnte?","Aktives Zuhören: erst verstehen, dann verstanden werden.","Grenzen setzen ist Selbstrespekt."]},
+      ["Was steckt wirklich dahinter?","Wenn du dir einen Wunsch erfüllen könntest?","Was würde dein bestes Ich tun?","Wie fühlt sich das körperlich an?"]) },
+  { id:"smart-dev", name:"Code Mentor", category:"Smart-Bots", emoji:"💻", description:"Programmier-Hilfe",
+    code: smartBot("DevBot","Welche Programmiersprache/Problem?",
+      {javascript:["JS Tipp: const>let>var. Immer.","Async/await statt Promise-Chains für Lesbarkeit.","Array-Methods: map/filter/reduce sind dein Freund."],
+       python:["Python: List comprehensions > for-loops.","f-strings sind besser als .format().","virtualenv für jedes Projekt!"],
+       react:["React: useEffect dependencies IMMER setzen.","Vermeide useState für derived state - useMemo.","Keys in Listen müssen stabil sein."],
+       css:["CSS: Flexbox für 1D, Grid für 2D.","CSS Variables (--var) für Theming.","clamp() für responsive Typografie."],
+       bug:["Debug-Schritte: 1) Reproduzieren 2) Isolieren 3) Hypothese 4) Test","console.log mit Labels: console.log({var}).","Rubber-Duck-Debugging: erklär dem Bot dein Problem!"],
+       performance:["Performance: erst messen, dann optimieren.","Bundle-Size: dynamic imports nutzen.","Memoization nur wo nötig - sonst Overhead."]},
+      ["Code-Beispiel?","Welche Fehlermeldung?","Was hast du schon versucht?","Stack-Trace?"]) },
+  { id:"smart-fitness", name:"Fitness-Coach AI", category:"Smart-Bots", emoji:"💪", description:"Trainings-KI",
+    code: smartBot("FitAI","Was ist dein Fitness-Ziel?",
+      {abnehmen:["Kaloriendefizit von 300-500 kcal/Tag = nachhaltig.","Krafttraining + Cardio kombinieren.","Protein: 1.6-2.2g pro kg Körpergewicht."],
+       muskel:["Hypertrophie: 8-12 Wdh, 3-4 Sätze, progressive Overload.","Schlaf >7h ist anabol wichtiger als jede Übung.","Compound-Lifts: Kniebeuge, Kreuzheben, Bankdrücken."],
+       cardio:["HIIT 2x/Woche + LISS 2x/Woche = optimal.","Zone 2 Cardio = Fettverbrennung.","Pausen-Intervalle wichtig!"],
+       ernährung:["80/20 Regel: 80% clean, 20% Genuss.","Wasser: 35ml pro kg Körpergewicht.","Meal Prep spart Disziplin."],
+       schmerz:["Schmerz STOP - das ist kein Pussy-Move.","Mobility vor Stretching.","Foam Rolling 5min/Tag."]},
+      ["Wie ist dein aktuelles Level?","Wie oft trainierst du?","Was ist dein Hauptziel?","Verletzungshistorie?"]) },
+  { id:"smart-mind", name:"Mindfulness Guide", category:"Smart-Bots", emoji:"🧘", description:"Achtsamkeit",
+    code: smartBot("Zen","Atme ein. Atme aus. Was brauchst du jetzt?",
+      {meditation:["Beginn mit 5 Minuten. Täglich.","Body-Scan von Zehen bis Kopf.","Atem zählen 1-10, dann von vorn."],
+       grübeln:["Gedanken sind Wolken - sie ziehen vorbei.","'Danke Geist, das hab ich gehört.' Loslassen.","Schreib es auf. Verbrenn es symbolisch."],
+       präsent:["5-4-3-2-1: 5 sehen, 4 hören, 3 fühlen, 2 riechen, 1 schmecken.","Fokus auf den nächsten Atemzug.","Was ist JETZT da?"]},
+      ["Was spürst du körperlich?","Wo im Körper sitzt das?","Bleib einen Moment damit.","Atme einfach."]) },
+  { id:"smart-business", name:"Business Strategist", category:"Smart-Bots", emoji:"📊", description:"Strategie-KI",
+    code: smartBot("Strategist","Welches Business-Problem?",
+      {marketing:["AIDA: Attention, Interest, Desire, Action.","Content-Marketing > Werbung (Trust!).","Email-List ist Gold - eigene Plattform."],
+       startup:["Lean Startup: Build-Measure-Learn.","MVP in 4 Wochen, nicht 4 Monate.","Talk to customers BEFORE building."],
+       preis:["Preis 3x höher ansetzen als gedacht.","Value-Pricing > Cost-Pricing.","Premium-Positionierung schützt vor Konkurrenz."],
+       skalieren:["Erst Produkt-Market-Fit, DANN skalieren.","Automatisiere wiederkehrende Tasks.","Hire slow, fire fast."],
+       konkurrenz:["Konkurrenz analysieren ≠ kopieren.","Finde deinen Unique-Angle.","Blue Ocean > Red Ocean."]},
+      ["Wer ist deine Zielgruppe?","Was ist dein USP?","Wie hoch ist dein CAC vs LTV?","Was ist die nächste 90-Tage-Priorität?"]) },
+  { id:"smart-money", name:"Finanz-Berater AI", category:"Smart-Bots", emoji:"💰", description:"Geld-Strategie",
+    code: smartBot("FinBot","Was ist deine Finanz-Frage?",
+      {sparen:["50/30/20: 50% Bedarf, 30% Wünsche, 20% sparen/investieren.","Pay yourself first - Dauerauftrag am 1.","Notgroschen: 3-6 Monatsausgaben."],
+       investieren:["ETF-Welt-Portfolio: MSCI World + EM = simpel & gut.","Cost-Average beats Timing the Market.","Diversifikation: Aktien/Anleihen/Cash/Sachwerte."],
+       schulden:["Schneeball: kleinste Schuld zuerst tilgen (Psyche).","Lawine: höchster Zins zuerst (Math).","Konsumschulden = Notfall, tilgen!"],
+       immobilien:["Lage³. Cashflow > Wertsteigerung.","30% Eigenkapital Faustregel.","Kosten: nicht nur Kaufpreis - Nebenkosten +15%."],
+       krypto:["Max 5-10% des Portfolios.","Nur Bitcoin/Ethereum als Langfrist-Hold.","Not your keys, not your coins."]},
+      ["Wie ist deine Einkommens-Situation?","Welcher Anlagehorizont?","Risiko-Toleranz?","Aktuelle Verbindlichkeiten?"]) },
+  { id:"smart-lang", name:"Sprach-Lehrer", category:"Smart-Bots", emoji:"🗣️", description:"Spracherwerb",
+    code: smartBot("PolyBot","Welche Sprache lernst du?",
+      {englisch:["Hello! Watch Netflix in EN with EN subs.","Shadowing: Sprecher nachsprechen.","Anki Deck mit 2000 häufigsten Wörtern."],
+       spanisch:["¡Hola! Duolingo + Pimsleur Kombi.","Telenovelas helfen wirklich.","Gendern: el/la - Endung beachten."],
+       französisch:["Bonjour! Liaison ist Schlüssel zur Aussprache.","Subjonctif kommt später - Indikativ erst.","Französisches Kino täglich 30min."],
+       japanisch:["こんにちは! Hiragana zuerst, dann Katakana, dann Kanji.","JLPT N5→N1.","Anime + Manga in OG-Sprache."]},
+      ["Welches Level (A1-C2)?","Wie lernst du am besten - hören/lesen/sprechen?","Wofür brauchst du die Sprache?"]) },
+  { id:"smart-recipe", name:"Rezept-KI", category:"Smart-Bots", emoji:"🍳", description:"Was-koche-ich",
+    code: smartBot("Chef","Welche Zutaten hast du?",
+      {pasta:["Pasta Aglio e Olio: Knoblauch+Öl+Chili+Petersilie. 10min.","Carbonara: Speck+Ei+Pecorino+Pfeffer. KEINE Sahne!","One-Pot-Pasta: alles in einen Topf, fertig."],
+       reis:["Reisgericht: anbraten, würzen, Brühe, 18min köcheln.","Risotto: Brühe löffelweise, rühren!","Sushi-Reis: Essig+Zucker+Salz reinheben."],
+       huhn:["Hähnchen: trocken tupfen, salzen, hohe Hitze!","Marinieren mind. 2h - Joghurt macht zart.","Brusttemp 73°C = perfekt."],
+       gemüse:["Gemüse rösten 200°C 20min - Karamell!","Sauté mit Knoblauch + Olivenöl.","Wok hoch erhitzen, schnell schwenken."],
+       süß:["Mug-Cake: Mehl+Kakao+Zucker+Milch+Öl. 90s Mikro.","Pfannkuchen: 1 Ei, 1 Banane, 1 Schluck Milch.","Tiramisu ohne Backen - 4h kalt."]},
+      ["Wie viel Zeit hast du?","Vegetarisch/Vegan?","Wie viele Personen?","Was magst du nicht?"]) },
+  { id:"smart-travel", name:"Reise-Planer KI", category:"Smart-Bots", emoji:"✈️", description:"Maßgeschneiderte Reise",
+    code: smartBot("Wanderlust","Wohin/Wann/Wer?",
+      {strand:["Bali, Thailand, Mauritius - Strand-Paradies.","Kroatien & Griechenland im EU-Budget.","Geheimtipp: Albanien!"],
+       städte:["Lissabon, Porto - günstig & schön.","Tokyo: 1 Woche reicht nicht.","Berlin/Prag/Budapest = Städte-Trip."],
+       abenteuer:["Patagonien, Island, Nepal = Adrenalin.","Marokko: Wüste + Atlas + Coast.","Vietnam Süd-Nord = Backpacker-Klassiker."],
+       budget:["Hostels + Streetfood + Bahn = günstig.","Off-Season buchen spart 50%.","Couchsurfing + Workaway."],
+       luxus:["Malediven Overwater Villa.","Safari Tansania Serengeti.","Japan Ryokan + Onsen."]},
+      ["Wie lange reist du?","Solo/Paar/Familie?","Budget pro Tag?","Sommer/Winter?","Aktiv oder erholsam?"]) },
+  ...Array.from({length:40},(_,i)=>{
+    const names=["Liebes-KI","Karriere-KI","Lern-KI","Garten-KI","Auto-KI","Tier-KI","Mode-KI","Beauty-KI","Eltern-KI","Hochzeit-KI","Senioren-KI","Wein-KI","Cocktail-KI","Kaffee-KI","Tea-KI","Tech-Trends","Krypto-KI","Aktien-KI","NFT-KI","KI-Ethik-Bot","SciFi-Storyteller","Krimi-KI","Romance-Writer","Comedy-KI","Drama-KI","Songwriter-KI","Poet-KI","Lyric-KI","Brainstorm-KI","Pro-Contra","Debatten-KI","Sokrates-KI","Stoiker-KI","Buddhist-KI","Zen-Master","ADHS-Helper","Schlaf-Coach","Beziehung-Therapeut","Konflikt-Mediator","Trauer-Begleitung"];
+    const t=names[i];
+    return { id:`smart-x${i}`, name:t, category:"Smart-Bots", emoji:"🧠", description:"Intelligente Beratung",
+      code: smartBot(t, `Hi, ich bin ${t}. Wobei kann ich helfen?`,
+        {hilfe:[`${t} sagt: Lass uns systematisch vorgehen.`,`${t}: erst Klarheit, dann Action.`,`${t}: Was wäre das beste Ergebnis?`],
+         problem:[`${t}: Probleme sind Wachstums-Einladungen.`,`${t}: Welcher Teil ist unter deiner Kontrolle?`],
+         tipp:[`${t}-Tipp: Konsistenz schlägt Intensität.`,`${t}-Tipp: 1% besser pro Tag = 37x in einem Jahr.`,`${t}-Tipp: Bestes Timing war gestern, zweitbestes ist jetzt.`],
+         danke:["Gern geschehen!","Ich bin hier wenn du mich brauchst.","Du machst das super."]},
+        [`Erzähl mir mehr.`,`Wie fühlt sich das an?`,`Was wäre der nächste Schritt?`,`Was hindert dich daran?`,`Mit wem kannst du das teilen?`])
     };
   }),
+
+  // === ADVANCED APPS (30) - vollständige Mini-Apps ===
+  { id:"app-kanban", name:"Kanban Board", category:"Apps", emoji:"📋", description:"Trello-Style",
+    code: wrap("Kanban",`<div id="b" style="display:grid;grid-template-columns:repeat(3,1fr);gap:.5rem"></div><input id="i" placeholder="Neue Karte..."><button onclick="add()">+ ToDo</button>`,
+      `let d=JSON.parse(localStorage.getItem('kanban')||'{"todo":[],"doing":[],"done":[]}');
+       function s(){localStorage.setItem('kanban',JSON.stringify(d));r()}
+       function add(){const i=document.getElementById('i');if(i.value){d.todo.push(i.value);i.value='';s()}}
+       function mv(col,idx,dir){const cols=['todo','doing','done'];const ni=cols.indexOf(col)+dir;if(ni<0||ni>2)return;const item=d[col].splice(idx,1)[0];d[cols[ni]].push(item);s()}
+       function del(col,idx){d[col].splice(idx,1);s()}
+       function r(){document.getElementById('b').innerHTML=['todo','doing','done'].map(c=>'<div style="background:rgba(0,0,0,.4);padding:.5rem;border-radius:8px;min-height:200px"><h3 style="font-size:.9rem;margin-bottom:.5rem">'+({todo:'📌 ToDo',doing:'⚡ Doing',done:'✅ Done'}[c])+'</h3>'+d[c].map((x,i)=>'<div style="background:rgba(168,85,247,.2);padding:.4rem;margin:.3rem 0;border-radius:6px;font-size:.85rem">'+x+'<div style="display:flex;gap:.2rem;margin-top:.3rem"><button style="padding:.2rem .4rem;font-size:.7rem" onclick="mv(\\''+c+'\\','+i+',-1)">←</button><button style="padding:.2rem .4rem;font-size:.7rem" onclick="mv(\\''+c+'\\','+i+',1)">→</button><button style="padding:.2rem .4rem;font-size:.7rem;background:#dc2626" onclick="del(\\''+c+'\\','+i+')">✕</button></div></div>').join('')+'</div>').join('')}r();`) },
+  { id:"app-budget", name:"Budget-Tracker", category:"Apps", emoji:"💸", description:"Einnahmen/Ausgaben",
+    code: wrap("Budget",`<div class="row"><input id="t" placeholder="Beschreibung"><input id="a" type="number" placeholder="€"><select id="k"><option value="1">+ Einnahme</option><option value="-1">- Ausgabe</option></select><button onclick="add()">+</button></div><div id="sum" class="out" style="text-align:center;font-size:1.3rem"></div><div id="list"></div>`,
+      `let d=JSON.parse(localStorage.getItem('bud')||'[]');
+       function s(){localStorage.setItem('bud',JSON.stringify(d));r()}
+       function add(){const t=document.getElementById('t').value,a=+document.getElementById('a').value,k=+document.getElementById('k').value;if(t&&a){d.push({t,a:a*k,d:Date.now()});document.getElementById('t').value='';document.getElementById('a').value='';s()}}
+       function del(i){d.splice(i,1);s()}
+       function r(){const sum=d.reduce((s,x)=>s+x.a,0);document.getElementById('sum').innerHTML='Saldo: <b style="color:'+(sum>=0?'#4ade80':'#f87171')+'">'+sum.toFixed(2)+' €</b>';document.getElementById('list').innerHTML=d.slice().reverse().map((x,i)=>'<div style="display:flex;justify-content:space-between;padding:.5rem;background:rgba(0,0,0,.3);margin:.25rem 0;border-radius:6px"><span>'+x.t+'</span><span style="color:'+(x.a>=0?'#4ade80':'#f87171')+'">'+x.a.toFixed(2)+' €</span><span onclick="del('+(d.length-1-i)+')" style="cursor:pointer">✕</span></div>').join('')}r();`) },
+  { id:"app-habit", name:"Habit-Tracker", category:"Apps", emoji:"🔥", description:"Gewohnheiten",
+    code: wrap("Habits",`<input id="h" placeholder="Neue Gewohnheit"><button onclick="add()">+</button><div id="list"></div>`,
+      `let d=JSON.parse(localStorage.getItem('hab')||'[]');const today=new Date().toISOString().slice(0,10);
+       function s(){localStorage.setItem('hab',JSON.stringify(d));r()}
+       function add(){const v=document.getElementById('h').value;if(v){d.push({n:v,days:[]});document.getElementById('h').value='';s()}}
+       function tog(i){const idx=d[i].days.indexOf(today);if(idx>-1)d[i].days.splice(idx,1);else d[i].days.push(today);s()}
+       function del(i){if(confirm('Löschen?')){d.splice(i,1);s()}}
+       function streak(days){const sorted=[...days].sort();let s=0;let dt=new Date();for(let i=0;i<365;i++){const k=dt.toISOString().slice(0,10);if(sorted.includes(k))s++;else if(i>0)break;dt.setDate(dt.getDate()-1)}return s}
+       function r(){document.getElementById('list').innerHTML=d.map((h,i)=>'<div style="display:flex;justify-content:space-between;align-items:center;padding:.7rem;background:rgba(0,0,0,.3);margin:.3rem 0;border-radius:8px"><span>'+h.n+'</span><span style="font-size:1.3rem">🔥'+streak(h.days)+'</span><div><button onclick="tog('+i+')" style="padding:.3rem .8rem">'+(h.days.includes(today)?'✅':'⭕')+'</button><button onclick="del('+i+')" style="background:#dc2626;padding:.3rem .6rem">✕</button></div></div>').join('')}r();`) },
+  { id:"app-pomo-pro", name:"Pomodoro PRO", category:"Apps", emoji:"🍅", description:"Mit Statistik",
+    code: wrap("Pomodoro PRO",`<div id="t" style="font-size:4rem;text-align:center;margin:1rem 0">25:00</div><div class="row"><button onclick="st()">Start</button><button onclick="ps()">Pause</button><button onclick="rs()" style="background:#dc2626">Reset</button></div><div id="stats" class="out" style="text-align:center"></div>`,
+      `let r=1500,iv=null,ses=+(localStorage.getItem('pomo')||0);
+       function f(){const m=Math.floor(r/60),s=r%60;document.getElementById('t').innerText=String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');document.getElementById('stats').innerText='Heutige Sessions: '+ses}
+       function st(){if(iv)return;iv=setInterval(()=>{r--;f();if(r<=0){clearInterval(iv);iv=null;ses++;localStorage.setItem('pomo',ses);alert('🎉 Pomodoro fertig!');r=1500;f()}},1000)}
+       function ps(){clearInterval(iv);iv=null}
+       function rs(){clearInterval(iv);iv=null;r=1500;f()}f();`) },
+  { id:"app-mood", name:"Mood Journal", category:"Apps", emoji:"😊", description:"Stimmungs-Log",
+    code: wrap("Mood",`<div class="row" style="font-size:2rem">${[1,2,3,4,5].map(n=>`<button onclick="log(${n})" style="font-size:1.8rem">${['😢','😕','😐','😊','🥰'][n-1]}</button>`).join('')}</div><textarea id="note" rows="3" placeholder="Was war heute?"></textarea><button onclick="save()">Speichern</button><div id="hist" class="out"></div>`,
+      `let d=JSON.parse(localStorage.getItem('mood')||'[]');let m=3;
+       function log(n){m=n;document.querySelector('#hist').innerText='Heute: '+['😢','😕','😐','😊','🥰'][n-1]}
+       function save(){d.push({m,n:document.getElementById('note').value,t:Date.now()});localStorage.setItem('mood',JSON.stringify(d));document.getElementById('note').value='';r()}
+       function r(){document.getElementById('hist').innerHTML=d.slice(-10).reverse().map(x=>'<div style="padding:.4rem;border-left:3px solid #a855f7;margin:.3rem 0">'+['😢','😕','😐','😊','🥰'][x.m-1]+' '+new Date(x.t).toLocaleDateString()+'<br><small>'+(x.n||'')+'</small></div>').join('')}r();`) },
+  { id:"app-water", name:"Wasser-Tracker", category:"Apps", emoji:"💧", description:"Trink-Erinnerung",
+    code: wrap("Wasser",`<div style="text-align:center;font-size:5rem" id="d">0/8</div><div class="row"><button onclick="add()">+ Glas</button><button onclick="rs()" style="background:#dc2626">Reset</button></div><div id="bar" style="background:rgba(0,0,0,.3);border-radius:20px;height:30px;overflow:hidden;margin-top:1rem"><div id="fill" style="background:linear-gradient(90deg,#3b82f6,#06b6d4);height:100%;width:0%;transition:.3s"></div></div>`,
+      `const today=new Date().toDateString();let c=+localStorage.getItem('water_'+today)||0;
+       function r(){document.getElementById('d').innerText=c+'/8 💧';document.getElementById('fill').style.width=Math.min(100,c/8*100)+'%';localStorage.setItem('water_'+today,c)}
+       function add(){c++;r();if(c===8)alert('🎉 Tagesziel erreicht!')}
+       function rs(){c=0;r()}r();`) },
+  { id:"app-flash", name:"Flashcards", category:"Apps", emoji:"🎴", description:"Karteikarten",
+    code: wrap("Flashcards",`<div id="card" class="out" style="min-height:200px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;cursor:pointer;text-align:center"></div><div class="row"><button onclick="prev()">←</button><button onclick="flip()">Drehen</button><button onclick="next()">→</button></div><textarea id="add" rows="2" placeholder="Frage|Antwort"></textarea><button onclick="addCard()">+ Karte</button>`,
+      `let d=JSON.parse(localStorage.getItem('flash')||'[["Was ist 2+2?","4"],["Hauptstadt DE?","Berlin"]]');let i=0,front=true;
+       function s(){localStorage.setItem('flash',JSON.stringify(d))}
+       function show(){if(!d.length){document.getElementById('card').innerText='Keine Karten';return}document.getElementById('card').innerText=d[i][front?0:1]}
+       function flip(){front=!front;show()}
+       function next(){i=(i+1)%d.length;front=true;show()}
+       function prev(){i=(i-1+d.length)%d.length;front=true;show()}
+       function addCard(){const v=document.getElementById('add').value.split('|');if(v.length===2){d.push(v);s();document.getElementById('add').value='';show()}}
+       show();`) },
+  { id:"app-expense", name:"Spesen-Split", category:"Apps", emoji:"🧾", description:"Wer schuldet wem",
+    code: wrap("Split",`<input id="who" placeholder="Wer hat gezahlt?"><input id="amt" type="number" placeholder="Betrag €"><input id="for" placeholder="Wofür"><input id="ppl" type="number" placeholder="Anzahl Personen" value="2"><button onclick="add()">+</button><div id="list" class="out"></div>`,
+      `let d=JSON.parse(localStorage.getItem('split')||'[]');
+       function s(){localStorage.setItem('split',JSON.stringify(d));r()}
+       function add(){const w=document.getElementById('who').value,a=+document.getElementById('amt').value,f=document.getElementById('for').value,p=+document.getElementById('ppl').value;if(w&&a&&p>1){d.push({w,a,f,p,per:a/p});['who','amt','for'].forEach(id=>document.getElementById(id).value='');s()}}
+       function r(){const sum=d.reduce((s,x)=>s+x.a,0);document.getElementById('list').innerHTML='Gesamt: '+sum.toFixed(2)+' €<br><br>'+d.map(x=>'<div style="padding:.4rem;border-left:3px solid #a855f7;margin:.3rem 0">'+x.w+' zahlte '+x.a.toFixed(2)+'€ für '+x.f+' ('+x.per.toFixed(2)+'€/Person × '+x.p+')</div>').join('')}r();`) },
+  { id:"app-meditate", name:"Meditations-Timer", category:"Apps", emoji:"🧘", description:"Mit Gong",
+    code: wrap("Meditation",`<div style="text-align:center"><div id="t" style="font-size:5rem">10:00</div><div id="breath" style="width:150px;height:150px;border-radius:50%;margin:1rem auto;background:radial-gradient(#3b82f6,#1e40af);transition:transform 4s"></div></div><div class="row"><select id="dur"><option value="300">5min</option><option value="600" selected>10min</option><option value="900">15min</option><option value="1200">20min</option></select><button onclick="st()">Start</button><button onclick="sp()" style="background:#dc2626">Stop</button></div>`,
+      `let r=600,iv=null;
+       function f(){const m=Math.floor(r/60),s=r%60;document.getElementById('t').innerText=String(m).padStart(2,'0')+':'+String(s).padStart(2,'0')}
+       function st(){r=+document.getElementById('dur').value;f();if(iv)clearInterval(iv);iv=setInterval(()=>{r--;f();const b=document.getElementById('breath');b.style.transform=(r%8<4)?'scale(1.3)':'scale(.8)';if(r<=0){clearInterval(iv);iv=null;alert('🙏 Namaste')}},1000)}
+       function sp(){clearInterval(iv);iv=null}f();`) },
+  { id:"app-recipe-book", name:"Mein Kochbuch", category:"Apps", emoji:"📖", description:"Rezepte speichern",
+    code: wrap("Kochbuch",`<input id="n" placeholder="Rezeptname"><textarea id="r" rows="6" placeholder="Zutaten & Schritte..."></textarea><button onclick="add()">+ Speichern</button><div id="list"></div>`,
+      `let d=JSON.parse(localStorage.getItem('cook')||'[]');
+       function s(){localStorage.setItem('cook',JSON.stringify(d));r()}
+       function add(){const n=document.getElementById('n').value,t=document.getElementById('r').value;if(n&&t){d.push({n,t});document.getElementById('n').value='';document.getElementById('r').value='';s()}}
+       function del(i){d.splice(i,1);s()}
+       function r(){document.getElementById('list').innerHTML=d.map((x,i)=>'<details style="background:rgba(0,0,0,.3);margin:.3rem 0;padding:.7rem;border-radius:8px"><summary style="cursor:pointer;font-weight:600">'+x.n+' <span onclick="del('+i+')" style="float:right;color:#f87171;cursor:pointer">✕</span></summary><pre style="white-space:pre-wrap;margin-top:.5rem">'+x.t+'</pre></details>').join('')}r();`) },
+  ...Array.from({length:20},(_,i)=>{
+    const names=["Workout-Plan","Schlaf-Log","Bücher-Liste","Filme-Watchlist","Reise-Bucket","Geschenkideen","Kontakt-Manager","Geburtstage","Passwort-Vault (lokal)","Auto-Wartung","Pflanzen-Pflege","Haustier-Log","Kinder-Wachstum","Lern-Sessions","Projekt-Ideen","Zitate-Sammlung","Träume-Log","Dankbarkeits-Liste","Symptom-Log","Auto-Tank-Log"];
+    const t=names[i];const k='app_'+i;
+    return { id:`app-x${i}`, name:t, category:"Apps", emoji:"📱", description:"Vollständige Mini-App",
+      code: wrap(t,`<input id="i" placeholder="Eintrag..."><textarea id="n" rows="3" placeholder="Details/Notiz..."></textarea><button onclick="add()">+ Hinzufügen</button><div id="list"></div>`,
+        `let d=JSON.parse(localStorage.getItem('${k}')||'[]');
+         function s(){localStorage.setItem('${k}',JSON.stringify(d));r()}
+         function add(){const v=document.getElementById('i').value,n=document.getElementById('n').value;if(v){d.push({v,n,t:Date.now()});document.getElementById('i').value='';document.getElementById('n').value='';s()}}
+         function del(i){d.splice(i,1);s()}
+         function r(){document.getElementById('list').innerHTML=d.slice().reverse().map((x,i)=>'<div style="background:rgba(0,0,0,.3);padding:.6rem;margin:.3rem 0;border-radius:8px;border-left:3px solid #a855f7"><div style="display:flex;justify-content:space-between"><b>'+x.v+'</b><span style="color:#f87171;cursor:pointer" onclick="del('+(d.length-1-i)+')">✕</span></div>'+(x.n?'<div style="font-size:.85rem;opacity:.8;margin-top:.3rem">'+x.n+'</div>':'')+'<div style="font-size:.7rem;opacity:.5;margin-top:.3rem">'+new Date(x.t).toLocaleString()+'</div></div>').join('')||'<div style="opacity:.5;text-align:center;padding:2rem">Noch leer</div>'}r();`)
+    };
+  }),
+
 ];
 
-export const categories = ["Alle", "Bots", "KI-Bots", "Rechner", "Konverter", "Generatoren", "Spiele", "Tools"];
+export const categories = ["Alle", "Smart-Bots", "Apps", "Bots", "Rechner", "Konverter", "Generatoren", "Spiele", "Tools"];
