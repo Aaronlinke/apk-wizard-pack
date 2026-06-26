@@ -543,7 +543,7 @@ export const botTemplates: BotTemplate[] = [
     ["Date-Idee",["Sonnenuntergang am See","Kochkurs zu zweit","Stadt-Foto-Walk","Picknick im Park","Brettspielabend","Sterne gucken"]],
     ["Geschenk-Idee",["Personalisierte Tasse","Selbstgemachte Praline-Box","Konzert-Tickets","Workshop-Gutschein","Foto-Album"]],
     ["Programmiersprache lernen",["Python","Rust","Go","TypeScript","Elixir","Zig","Kotlin"]],
-  ] as const).map(([n,items],i)=>({id:`gen-x${i}`,name:n,category:"Generatoren",emoji:"🎲",description:"Zufalls-Generator",code:builders.generator(n,items as string[])})),
+  ] as const).map(([n,items],i)=>({id:`gen-x${i}`,name:n,category:"Generatoren",emoji:"🎲",description:"Zufalls-Generator",code:builders.generator(n,items as unknown as string[])})),
 
   // === BULK: weitere Listen-Tools (10) ===
   ...([
