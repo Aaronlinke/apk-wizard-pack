@@ -488,6 +488,101 @@ export const botTemplates: BotTemplate[] = [
     };
   }),
 
+  // === BULK: weitere Rechner (20) ===
+  ...([
+    ["BMI","kg/(m*m)",[{id:"kg",label:"Gewicht kg"},{id:"m",label:"Größe m"}],"BMI"],
+    ["Tagesumsatz Kalorien","kg*24*1.4",[{id:"kg",label:"Gewicht kg"}],"kcal"],
+    ["Trinkmenge","kg*0.033",[{id:"kg",label:"Gewicht kg"}],"L Wasser"],
+    ["Sparzins","k*Math.pow(1+p/100,j)",[{id:"k",label:"Kapital"},{id:"p",label:"Zins %"},{id:"j",label:"Jahre"}],"€"],
+    ["Kredit-Rate","(b*(z/1200))/(1-Math.pow(1+z/1200,-m))",[{id:"b",label:"Betrag"},{id:"z",label:"Zins % p.a."},{id:"m",label:"Monate"}],"€/Monat"],
+    ["Pizza-Bedarf","p*0.3",[{id:"p",label:"Personen"}],"Pizzen"],
+    ["Bier-Bedarf","p*1.5",[{id:"p",label:"Personen"}],"Liter"],
+    ["Rabatt","preis*(1-prozent/100)",[{id:"preis",label:"Preis"},{id:"prozent",label:"Rabatt %"}],"€"],
+    ["MwSt 19%","netto*1.19",[{id:"netto",label:"Netto €"}],"€ brutto"],
+    ["Netto aus Brutto","brutto/1.19",[{id:"brutto",label:"Brutto €"}],"€ netto"],
+    ["Stundenlohn","gehalt/(std*4.33)",[{id:"gehalt",label:"Monatsgehalt"},{id:"std",label:"Std/Woche"}],"€/h"],
+    ["Benzinkosten","km/100*verb*preis",[{id:"km",label:"Strecke km"},{id:"verb",label:"Verbrauch L/100"},{id:"preis",label:"Preis/L"}],"€"],
+    ["Tipp 10%","b*0.1",[{id:"b",label:"Rechnung €"}],"€ Trinkgeld"],
+    ["Druck (Pa)","f/a",[{id:"f",label:"Kraft N"},{id:"a",label:"Fläche m²"}],"Pa"],
+    ["Geschwindigkeit","s/t",[{id:"s",label:"Strecke km"},{id:"t",label:"Zeit h"}],"km/h"],
+    ["Volumen Quader","l*b*h",[{id:"l",label:"L"},{id:"b",label:"B"},{id:"h",label:"H"}],"Vol"],
+    ["Kreisfläche","Math.PI*r*r",[{id:"r",label:"Radius"}],"Fläche"],
+    ["Hypotenuse","Math.sqrt(a*a+b*b)",[{id:"a",label:"a"},{id:"b",label:"b"}],"c"],
+    ["Prozent von","(t/g)*100",[{id:"t",label:"Teil"},{id:"g",label:"Ganzes"}],"%"],
+    ["Lebenstage","alter*365",[{id:"alter",label:"Alter Jahre"}],"Tage"],
+  ] as const).map(([n,f,inp,u],i)=>({id:`calc-x${i}`,name:n,category:"Rechner",emoji:"🧮",description:"Praktischer Rechner",code:builders.calculator(n,f as string,inp as any,u as string)})),
+
+  // === BULK: weitere Konverter (20) ===
+  ...([
+    ["Meter→Fuß",3.28084,"m","ft"],["Fuß→Meter",0.3048,"ft","m"],
+    ["Pfund→Kg",0.4536,"lbs","kg"],["Kg→Pfund",2.2046,"kg","lbs"],
+    ["Meilen→Km",1.6093,"mi","km"],["Km→Meilen",0.6214,"km","mi"],
+    ["°F→°C",0.5556,"(°F-32)","°C"],["Zoll→cm",2.54,"in","cm"],
+    ["cm→Zoll",0.3937,"cm","in"],["Liter→Gallone",0.2642,"L","gal"],
+    ["Gallone→Liter",3.7854,"gal","L"],["Unze→Gramm",28.3495,"oz","g"],
+    ["Gramm→Unze",0.0353,"g","oz"],["Yard→Meter",0.9144,"yd","m"],
+    ["km/h→mph",0.6214,"km/h","mph"],["mph→km/h",1.6093,"mph","km/h"],
+    ["m²→ft²",10.764,"m²","ft²"],["ft²→m²",0.0929,"ft²","m²"],
+    ["bar→psi",14.504,"bar","psi"],["psi→bar",0.0689,"psi","bar"],
+  ] as const).map(([n,f,from,to],i)=>({id:`conv-x${i}`,name:n,category:"Konverter",emoji:"🔄",description:`${from} nach ${to}`,code:builders.converter(n,f as number,from as string,to as string)})),
+
+  // === BULK: weitere Generatoren (15) ===
+  ...([
+    ["Startup-Name 2",["NovaCore","ZenithLab","ApexFlow","QuantumByte","PixelForge","StellarHub","AtomCraft","NeonPulse","CyberLeaf","EchoMint","ByteWave","NimbusAI","OrbitX","FluxBase","VertexGo"]],
+    ["Slogan",["Think different. Build better.","The future, today.","Made for makers.","Beyond the limits.","Where ideas thrive.","Simplicity meets power.","Crafted with care."]],
+    ["Domain-Idee",["getloopy.io","tryflow.app","usefable.com","heyspark.dev","makebloom.co","nextpine.xyz","quickbean.io"]],
+    ["Filmtitel",["Schatten der Zukunft","Letzter Sonnenstrahl","Verlorene Sterne","Echo der Stille","Roter Horizont","Neon Träume","Eisige Wahrheit"]],
+    ["Buchtitel",["Wenn der Wind erzählt","Die Farbe des Vergessens","Hinter den sieben Hügeln","Das stille Lied","Spuren im Sand"]],
+    ["Charakter-Name",["Aria Vance","Kael Storm","Lyra Nox","Riven Ash","Selene Quill","Zane Hart","Mira Frost"]],
+    ["Restaurant-Name",["Bella Luna","Roter Pfeffer","Holzofen","Goldener Reis","Sieben Gewürze","Casa Verde","Olive & Brot"]],
+    ["Cocktail",["Sunset Mule","Velvet Sky","Mango Tango","Smoky Pearl","Bitter Bloom","Garden Spritz"]],
+    ["Wochen-Ziel",["3× Sport","Nur Wasser trinken","Kein Zucker","30min Lesen täglich","Früh aufstehen","1 Buch fertig"]],
+    ["Outfit",["Jeans + weißes T-Shirt + Sneaker","Schwarzer Hoodie + Cargo + Boots","Sommerkleid + Sandalen","Blazer + Chino + Loafer"]],
+    ["Workout",["20 Liegestütze","30 Kniebeugen","1min Plank","50 Hampelmänner","15 Burpees","2min Wand-Sitz"]],
+    ["Yoga-Pose",["Berg","Krieger I","Krieger II","Kobra","Hund","Kind","Baum","Brücke","Taube"]],
+    ["Date-Idee",["Sonnenuntergang am See","Kochkurs zu zweit","Stadt-Foto-Walk","Picknick im Park","Brettspielabend","Sterne gucken"]],
+    ["Geschenk-Idee",["Personalisierte Tasse","Selbstgemachte Praline-Box","Konzert-Tickets","Workshop-Gutschein","Foto-Album"]],
+    ["Programmiersprache lernen",["Python","Rust","Go","TypeScript","Elixir","Zig","Kotlin"]],
+  ] as const).map(([n,items],i)=>({id:`gen-x${i}`,name:n,category:"Generatoren",emoji:"🎲",description:"Zufalls-Generator",code:builders.generator(n,items as string[])})),
+
+  // === BULK: weitere Listen-Tools (10) ===
+  ...([
+    ["Einkaufsliste","Artikel...","shop"],
+    ["Wunschliste","Wunsch...","wish"],
+    ["Aufgaben Heute","Heute zu tun...","today"],
+    ["Gewohnheiten","Neue Gewohnheit...","habits2"],
+    ["Pro & Contra","Punkt...","procon"],
+    ["Brainstorm","Idee...","brain"],
+    ["Bucket List","Lebensziel...","bucket"],
+    ["Lernkarten","Begriff...","cards2"],
+    ["Lieblings-Songs","Song...","songs"],
+    ["Anti-Vergessen","Erinnerung...","remind"],
+  ] as const).map(([n,p,k],i)=>({id:`list-x${i}`,name:n,category:"Tools",emoji:"📝",description:"Mit Speicher",code:builders.list(n,p,k)})),
+
+  // === BULK: weitere Timer (5) ===
+  ...([
+    ["Pomodoro 25",1500],["Kurzpause",300],["Langpause",900],["Plank-Timer",60],["Power-Nap",1200],
+  ] as const).map(([n,s],i)=>({id:`timer-x${i}`,name:n,category:"Tools",emoji:"⏰",description:"Countdown",code:builders.timer(n,s as number)})),
+
+  // === BULK: Smart Bots (15) ===
+  ...([
+    ["Reise-Berater","Wohin soll's gehen? ✈️",{strand:["Thailand, Bali oder Mallorca - je nach Budget!","Karibik im Winter, Mittelmeer im Sommer."],berg:["Alpen sind perfekt für Wanderungen.","Dolomiten haben die schönsten Panoramen."],city:["Lissabon, Prag oder Budapest - günstig & charmant.","Tokio, NYC oder London für die Großstadt-Vibes."],budget:["Mit 500€ kommst du in Osteuropa weit.","Couchsurfing + Bahn spart enorm."]},["Wie viel Zeit & Budget hast du?","Strand, Berge oder Stadt - was reizt dich?"]],
+    ["Auto-Doc","Was klemmt am Auto? 🔧",{bremse:["Quietschen = oft nur Staub. Schleifen = Beläge prüfen!","Bremsflüssigkeit alle 2 Jahre wechseln."],motor:["Check-Engine-Leuchte? OBD2-Scanner kaufen, kostet 20€.","Öl prüfen ist Pflicht alle 1000km."],reifen:["Profiltiefe min 3mm im Sommer, 4mm Winter.","Reifendruck monatlich checken!"],tank:["Diesel im Sommer billiger, Benzin im Winter."]},["Welches Symptom genau?","Geräusche oder Warnleuchte?"]],
+    ["Kochbuddy","Was soll ich kochen? 🍳",{schnell:["Pasta Aglio e Olio - 10min, 4 Zutaten.","Wraps mit Hummus + Gemüse - 5min."],vegan:["Linsen-Curry mit Kokosmilch ist top.","Falafel-Bowl mit Tahini-Dressing."],gesund:["Buddha-Bowl: Quinoa, Avocado, Kichererbsen.","Lachs mit Ofengemüse - simpel & nährstoffreich."],kinder:["Käse-Sticks im Backofen, Gurkenboote, Müsli-Riegel selbst gemacht."]},["Was hast du im Kühlschrank?","Wie viel Zeit hast du?"]],
+    ["Garten-Profi","Pflanze deinen Traumgarten 🌱",{tomate:["Im Mai pflanzen, 50cm Abstand, Stützstab nicht vergessen.","Tomaten lieben Sonne + ausgeizen!"],kraeuter:["Basilikum + Tomate = perfekte Nachbarn.","Petersilie braucht 4 Wochen zum Keimen, Geduld!"],giessen:["Morgens gießen, nicht abends (Schneckengefahr).","Lieber 2× pro Woche viel als täglich wenig."],duenger:["Hornspäne sind super organischer Langzeit-Dünger."]},["Sonne oder Schatten?","Topf oder Beet?"]],
+    ["Foto-Mentor","Bessere Fotos machen 📸",{licht:["Goldene Stunde (1h vor Sonnenuntergang) = magisch.","Blitz vermeiden, lieber ISO hochdrehen."],portrait:["Blende offen (f/1.8-2.8) = unscharfer Hintergrund.","Augen scharf, Rest darf weich sein."],landschaft:["Stativ + Blende f/8-11 + niedrige ISO."],komposition:["Drittel-Regel + diagonale Linien = Wow."]},["Was fotografierst du?","Handy oder Kamera?"]],
+    ["Mode-Stylist","Was anziehen heute? 👗",{business:["Anzug + weißes Hemd = nie falsch.","Capsule Wardrobe: 30 Teile, 100 Looks."],casual:["Jeans + T-Shirt + Sneaker = zeitlos."],date:["Schwarz schmeichelt allen.","Ein Statement-Teil reicht!"],saison:["Layering im Frühling = Schal + Jacke + T-Shirt."]},["Wofür ziehst du dich an?","Welche Farben magst du?"]],
+    ["Finanzplaner","Lass uns dein Geld optimieren 💰",{sparen:["50/30/20-Regel: Bedarf/Wunsch/Sparen.","Notgroschen = 3-6 Monatsgehälter."],etf:["MSCI World ETF = breit gestreut, langfristig top.","Sparplan ab 25€/Monat möglich."],schulden:["Erst teure Kredite (Dispo!) tilgen, dann sparen."],steuer:["Anlage N + Werbungskosten-Pauschale = einfach."]},["Was ist dein Ziel: Sparen, Investieren, Schulden weg?"]],
+    ["Tier-Doc","Dein Haustier braucht Hilfe 🐾",{hund:["Hund braucht 2-3× Gassi täglich + Beschäftigung.","Welpen: kleine Mahlzeiten, viel Schlaf."],katze:["Trockenfutter + Nassfutter mischen.","Spielzeug rotieren gegen Langeweile."],futter:["Schokolade & Trauben sind GIFTIG für Hunde!"],krank:["Erbrechen >24h → Tierarzt. Lethargie auch."]},["Welche Tierart?","Was beobachtest du genau?"]],
+    ["DIY-Bastler","Selber bauen macht glücklich 🔨",{holz:["Anfänger: Pinienholz, leicht zu schneiden.","Vorbohren spart Risse beim Schrauben."],farbe:["Acryl deckt am besten, Lasur lässt Holz atmen."],werkzeug:["Akkuschrauber + Stichsäge + Schleifer = Basis."],deko:["Makramee, Beton-Dekor und Treibholz sind im Trend."]},["Was willst du bauen?","Welches Material?"]],
+    ["Sport-Coach 2","Workout-Plan gefällig? 💪",{kraft:["3× Woche Ganzkörper besser als Splits für Anfänger."],ausdauer:["80% locker, 20% hart = Norweger-Methode."],dehnen:["Statisch nach dem Sport, dynamisch davor."],ernaehrung:["1.6-2.2g Protein/kg für Muskelaufbau."]},["Was ist dein Ziel: Muskeln, Abnehmen, Ausdauer?"]],
+    ["Schreibe-Mentor","Bessere Texte schreiben ✍️",{anfang:["Hook in Satz 1 - sonst klickt keiner weiter."],story:["Held + Hindernis + Wandel = jede gute Geschichte."],blog:["SEO + Storytelling = Reichweite + Engagement."],writers:["Schreibblockade? Pomodoro 25min, einfach loslegen."]},["Was schreibst du gerade?"]],
+    ["Karriere-Coach","Job-Move geplant? 💼",{lebenslauf:["1 Seite reicht. Tabellarisch, keine Floskeln."],gehalt:["Verhandle 10-20% über dem Angebot.","Recherchiere via kununu/glassdoor."],kuendigen:["Erst neuen Job sicher haben, dann reden."],interview:["STAR-Methode: Situation, Task, Action, Result."]},["Was steht an: Bewerbung, Gehalt, Wechsel?"]],
+    ["Beziehungs-Coach","Liebe ist kompliziert ❤️",{streit:["I-Botschaften statt 'Du machst immer...'."],kommunikation:["5 Liebessprachen kennen = Game-Changer."],vertrauen:["Vertrauen baut sich in 1000 kleinen Momenten."],trennung:["No-Contact 30 Tage hilft beim Loslassen."]},["Was beschäftigt dich gerade?"]],
+    ["Eltern-Helfer","Erziehung leicht gemacht 👶",{schlaf:["Routine = König. Gleiche Zeit, gleicher Ablauf."],trotz:["Wahlmöglichkeiten geben: 'Rot oder Blau?'"],schule:["Hausaufgaben nach Pause + Snack."],medien:["Bildschirmzeit nach Alter: 30min/Lebensjahr ist eine Faustregel."]},["Wie alt ist dein Kind?","Was ist der konkrete Knackpunkt?"]],
+    ["Achtsamkeits-Guide","Komm in den Moment 🧘",{stress:["4-7-8-Atmung: 4 ein, 7 halten, 8 aus."],schlaf:["Bildschirm 1h vor Schlaf weg = Game-Changer."],meditation:["10min täglich > 1h pro Woche."],angst:["5-4-3-2-1: 5 sehen, 4 hören, 3 fühlen, 2 riechen, 1 schmecken."]},["Was belastet dich gerade?"]],
+  ] as const).map(([n,intro,kb,fb],i)=>({id:`smart-x${i}`,name:n,category:"Smart-Bots",emoji:"🧠",description:"Smart mit Keyword-Erkennung",code:smartBot(n,intro,kb as any,fb as any)})),
+
 ];
 
 export const categories = ["Alle", "Smart-Bots", "Apps", "Bots", "Rechner", "Konverter", "Generatoren", "Spiele", "Tools"];
